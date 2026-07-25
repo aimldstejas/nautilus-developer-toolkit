@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/aimldstejas/nautilus-developer-toolkit/tree/main/docs
+    about: Read the project documentation before opening an issue.
+
+  - name: 🚀 Quick Start Guide
+    url: https://github.com/aimldstejas/nautilus-developer-toolkit/blob/main/docs/QUICK_START.md
+    about: Installation and getting started.
+
+  - name: 💬 General Questions
+    url: https://github.com/aimldstejas/nautilus-developer-toolkit/discussions
+    about: Ask questions or discuss ideas with the community.
