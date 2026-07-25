@@ -53,3 +53,26 @@ screenshots/generated/
 
 # Build artifacts
 release/
+
+# Python build and packaging
+build/
+dist/
+*.egg-info/
+
+# Test, coverage, and quality-tool caches
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local Python environments
+.venv/
+venv/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
