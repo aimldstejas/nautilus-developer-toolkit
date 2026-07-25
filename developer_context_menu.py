@@ -11,7 +11,15 @@ import gi
 
 gi.require_version("Nautilus", "4.0")
 
-from gi.repository import GObject, Nautilus
+from gi.repository import GObject, Nautilus  # noqa: E402
+
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    file_contains_any,
+    find_python_files,
+    module_name_from_file,
+    search_upwards,
+    write_new_file,
+)
 
 
 class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
@@ -1429,24 +1437,6 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     # Smart project detection and actions
     # ================================================================
 
-    @staticmethod
-    def search_upwards(
-        folder_path: str,
-        names: list[str],
-    ) -> Path | None:
-        """Search the selected folder and its parents for a marker."""
-
-        current = Path(folder_path).expanduser().resolve()
-
-        for directory in [current, *current.parents]:
-            for name in names:
-                candidate = directory / name
-
-                if candidate.exists():
-                    return candidate
-
-        return None
-
     def detect_project_root(self, folder_path: str) -> str:
         """Return the most likely project root."""
 
@@ -1473,57 +1463,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             "venv",
         ]
 
-        marker = self.search_upwards(folder_path, markers)
+        marker = search_upwards(folder_path, markers)
 
         if marker:
             return str(marker.parent)
 
         return str(Path(folder_path).expanduser().resolve())
-
-    @staticmethod
-    def file_contains_any(path: Path, patterns: list[str]) -> bool:
-        """Return True when a text file contains any supplied pattern."""
-
-        try:
-            content = path.read_text(
-                encoding="utf-8",
-                errors="ignore",
-            ).lower()
-        except Exception:
-            return False
-
-        return any(pattern.lower() in content for pattern in patterns)
-
-    @staticmethod
-    def find_python_files(root: Path) -> list[Path]:
-        """Return likely Python entry files while skipping large folders."""
-
-        skipped_parts = {
-            ".git",
-            ".venv",
-            "venv",
-            "__pycache__",
-            "node_modules",
-            "site-packages",
-            "dist",
-            "build",
-        }
-
-        files: list[Path] = []
-
-        try:
-            for path in root.rglob("*.py"):
-                if any(part in skipped_parts for part in path.parts):
-                    continue
-
-                files.append(path)
-
-                if len(files) >= 300:
-                    break
-        except Exception:
-            pass
-
-        return files
 
     def detect_project(self, folder_path: str) -> dict:
         """Inspect the selected folder and identify project capabilities."""
@@ -1602,7 +1547,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         if project["jupyter"]:
             project["python"] = True
 
-        python_files = self.find_python_files(root)
+        python_files = find_python_files(root)
 
         preferred_streamlit_names = [
             "streamlit_app.py",
@@ -1620,7 +1565,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         )
 
         for python_file in ordered_streamlit_files:
-            if self.file_contains_any(
+            if file_contains_any(
                 python_file,
                 [
                     "import streamlit",
@@ -1648,7 +1593,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         )
 
         for python_file in ordered_fastapi_files:
-            if self.file_contains_any(
+            if file_contains_any(
                 python_file,
                 [
                     "from fastapi import",
@@ -1666,7 +1611,8 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def project_report(self, project: dict) -> str:
         """Build a readable project-detection report."""
 
-        yes_no = lambda value: "Yes" if value else "No"
+        def yes_no(value: object) -> str:
+            return "Yes" if value else "No"
 
         lines = [
             f"Project root: {project['root']}",
@@ -1894,17 +1840,6 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             "Streamlit Application",
         )
 
-    @staticmethod
-    def module_name_from_file(
-        project_root: str,
-        entry_file: str,
-    ) -> str:
-        """Convert a Python path into an importable module name."""
-
-        relative = Path(entry_file).relative_to(Path(project_root)).with_suffix("")
-
-        return ".".join(relative.parts)
-
     def run_detected_fastapi(
         self,
         menu_item: Nautilus.MenuItem,
@@ -1922,7 +1857,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
             return
 
-        module_name = self.module_name_from_file(
+        module_name = module_name_from_file(
             project["root"],
             entry,
         )
@@ -2039,17 +1974,6 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     # New project wizard
     # ================================================================
 
-    @staticmethod
-    def write_new_file(path: Path, content: str) -> None:
-        """Create a file without overwriting an existing file."""
-
-        path.parent.mkdir(parents=True, exist_ok=True)
-
-        if path.exists():
-            raise FileExistsError(f"Refusing to overwrite existing file: {path}")
-
-        path.write_text(content, encoding="utf-8")
-
     def create_project_template(
         self,
         parent_folder: str,
@@ -2091,22 +2015,22 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
         title = project_name.replace("_", " ").replace("-", " ").title()
 
-        self.write_new_file(project_root / ".gitignore", gitignore)
+        write_new_file(project_root / ".gitignore", gitignore)
 
         if template_name == "Basic Python":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nPython project.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "src" / package_name / "__init__.py",
                 "",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "src" / package_name / "main.py",
                 (
                     "def main() -> None:\n"
@@ -2116,17 +2040,17 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                     "    main()\n"
                 ),
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "tests" / "test_smoke.py",
                 "def test_smoke() -> None:\n    assert True\n",
             )
 
         elif template_name == "Data Science":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nData-science project.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "environment.yml",
                 (
                     f"name: {package_name}\n"
@@ -2153,21 +2077,21 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 "reports/figures",
                 "tests",
             ]:
-                self.write_new_file(
+                write_new_file(
                     project_root / directory_name / ".gitkeep",
                     "",
                 )
 
         elif template_name == "Streamlit":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nStreamlit application.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "streamlit\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "app.py",
                 (
                     "import streamlit as st\n\n\n"
@@ -2179,25 +2103,25 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                     'st.write("Project is ready.")\n'
                 ),
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / ".streamlit" / "config.toml",
                 "[server]\nheadless = true\n",
             )
 
         elif template_name == "FastAPI":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nFastAPI application.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "fastapi\nuvicorn[standard]\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "app" / "__init__.py",
                 "",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "app" / "main.py",
                 (
                     "from fastapi import FastAPI\n\n\n"
@@ -2210,15 +2134,15 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
 
         elif template_name == "Docker Compose":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nDocker Compose project.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "compose.yml",
                 ('services:\n  app:\n    build: .\n    ports:\n      - "8000:8000"\n'),
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "Dockerfile",
                 (
                     "FROM python:3.11-slim\n\n"
@@ -2229,21 +2153,21 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                     'CMD ["python", "app.py"]\n'
                 ),
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "app.py",
                 'print("Docker project is ready.")\n',
             )
 
         elif template_name == "RAG Application":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nLocal retrieval-augmented generation project.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 ("langchain\nlangchain-community\nchromadb\npypdf\nollama\n"),
             )
@@ -2255,12 +2179,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 "tests",
                 "config",
             ]:
-                self.write_new_file(
+                write_new_file(
                     project_root / directory_name / ".gitkeep",
                     "",
                 )
 
-            self.write_new_file(
+            write_new_file(
                 project_root / "src" / "main.py",
                 (
                     "def main() -> None:\n"
@@ -2272,11 +2196,11 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
 
         elif template_name == "Agent Application":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nAgentic AI application.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "pydantic\nhttpx\nollama\n",
             )
@@ -2288,12 +2212,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 "tests",
                 "config",
             ]:
-                self.write_new_file(
+                write_new_file(
                     project_root / directory_name / ".gitkeep",
                     "",
                 )
 
-            self.write_new_file(
+            write_new_file(
                 project_root / "src" / "main.py",
                 (
                     "def main() -> None:\n"
@@ -2305,15 +2229,15 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
 
         elif template_name == "MCP Server":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nModel Context Protocol server.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "mcp\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "server.py",
                 (
                     "from mcp.server.fastmcp import FastMCP\n\n\n"
