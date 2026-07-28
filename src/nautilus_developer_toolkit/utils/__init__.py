@@ -1,5 +1,6 @@
 """Shared utility functions for Nautilus Developer Toolkit."""
 
+from .command_utils import find_command
 from .filesystem import (
     file_contains_any,
     find_python_files,
@@ -10,6 +11,7 @@ from .paths import module_name_from_file
 
 __all__ = [
     "file_contains_any",
+    "find_command",
     "find_python_files",
     "module_name_from_file",
     "search_upwards",

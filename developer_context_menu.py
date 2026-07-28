@@ -20,6 +20,7 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     search_upwards,
     write_new_file,
 )
+from nautilus_developer_toolkit.utils import find_command as find_system_command  # noqa: E402
 
 
 class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
@@ -44,13 +45,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def find_command(candidates: list[str]) -> str | None:
         """Return the first installed executable from a list."""
 
-        for candidate in candidates:
-            command = shutil.which(candidate)
-
-            if command:
-                return command
-
-        return None
+        return find_system_command(candidates)
 
     @staticmethod
     def notify(title: str, message: str) -> None:
