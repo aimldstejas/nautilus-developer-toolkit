@@ -15,7 +15,7 @@ from .filesystem import (
 )
 from .git_utils import convert_git_remote_to_web_url, get_git_remote_url, get_git_root
 from .notification_utils import notify
-from .paths import module_name_from_file
+from .paths import get_local_path, module_name_from_file
 from .process_utils import launch_process
 
 __all__ = [
@@ -29,6 +29,7 @@ __all__ = [
     "get_git_root",
     "convert_git_remote_to_web_url",
     "get_git_remote_url",
+    "get_local_path",
     "find_python_files",
     "module_name_from_file",
     "launch_process",

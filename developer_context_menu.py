@@ -42,6 +42,9 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     get_git_root as find_git_root,
 )
 from nautilus_developer_toolkit.utils import (  # noqa: E402
+    get_local_path as resolve_local_path,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
     launch_process as launch_detached_process,
 )
 from nautilus_developer_toolkit.utils import notify as send_desktop_notification  # noqa: E402
@@ -58,12 +61,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def get_local_path(file_info: Nautilus.FileInfo) -> str | None:
         """Return the local filesystem path for a Nautilus item."""
 
-        location = file_info.get_location()
-
-        if location is None:
-            return None
-
-        return location.get_path()
+        return resolve_local_path(file_info)
 
     @staticmethod
     def find_command(candidates: list[str]) -> str | None:
