@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import json
 import shlex
 import shutil
 import subprocess
@@ -24,6 +23,9 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
 )
 from nautilus_developer_toolkit.utils import find_command as find_system_command  # noqa: E402
 from nautilus_developer_toolkit.utils import find_conda_executable as find_conda_path  # noqa: E402
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    get_conda_environments as list_conda_environments,
+)
 from nautilus_developer_toolkit.utils import notify as send_desktop_notification  # noqa: E402
 
 
@@ -201,54 +203,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def get_conda_environments(self) -> list[tuple[str, str]]:
         """Return Conda environments as name/path tuples."""
 
-        conda_executable = self.find_conda_executable()
-
-        if not conda_executable:
-            return []
-
-        try:
-            result = subprocess.run(
-                [conda_executable, "env", "list", "--json"],
-                capture_output=True,
-                text=True,
-                check=True,
-                timeout=15,
-            )
-
-            data = json.loads(result.stdout)
-            environment_paths = data.get("envs", [])
-
-            environments: list[tuple[str, str]] = []
-
-            for environment_path in environment_paths:
-                path = Path(environment_path)
-                name = path.name
-
-                if name in {
-                    "miniconda3",
-                    "anaconda3",
-                    "miniforge3",
-                    "mambaforge",
-                }:
-                    name = "base"
-
-                environments.append((name, str(path)))
-
-            environments.sort(
-                key=lambda item: (
-                    item[0] != "base",
-                    item[0].lower(),
-                )
-            )
-
-            return environments
-
-        except Exception as error:
-            self.notify(
-                "Conda environment error",
-                f"Could not read Conda environments: {error}",
-            )
-            return []
+        return list_conda_environments()
 
     def choose_conda_environment(self) -> str | None:
         """Display a graphical Conda environment selector."""

@@ -1,9 +1,13 @@
 """Utilities for discovering Conda installations."""
 
+import json
 import os
 import shlex
 import shutil
+import subprocess
 from pathlib import Path
+
+from .notification_utils import notify
 
 
 def find_conda_executable() -> str | None:
@@ -24,6 +28,59 @@ def find_conda_executable() -> str | None:
             return candidate
 
     return None
+
+
+def get_conda_environments(conda_executable: str | None = None) -> list[tuple[str, str]]:
+    """Return Conda environments as name/path tuples."""
+
+    conda_executable = conda_executable or find_conda_executable()
+
+    if not conda_executable:
+        return []
+
+    try:
+        result = subprocess.run(
+            [conda_executable, "env", "list", "--json"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=15,
+        )
+
+        data = json.loads(result.stdout)
+        environment_paths = data.get("envs", [])
+
+        environments: list[tuple[str, str]] = []
+
+        for environment_path in environment_paths:
+            path = Path(environment_path)
+            name = path.name
+
+            if name in {
+                "miniconda3",
+                "anaconda3",
+                "miniforge3",
+                "mambaforge",
+            }:
+                name = "base"
+
+            environments.append((name, str(path)))
+
+        environments.sort(
+            key=lambda item: (
+                item[0] != "base",
+                item[0].lower(),
+            )
+        )
+
+        return environments
+
+    except Exception as error:
+        notify(
+            "Conda environment error",
+            f"Could not read Conda environments: {error}",
+        )
+        return []
 
 
 def build_conda_shell_command(

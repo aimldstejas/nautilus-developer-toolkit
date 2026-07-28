@@ -1,12 +1,16 @@
 """Tests for Conda discovery utilities."""
 
+import json
+import subprocess
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from nautilus_developer_toolkit.utils.conda_utils import (
     build_conda_shell_command,
     find_conda_executable,
+    get_conda_environments,
 )
 
 
@@ -115,3 +119,99 @@ def test_build_conda_shell_command_quotes_paths_with_spaces() -> None:
         "conda activate '/home/tester/miniconda 3/envs/my environment'; "
         "cd '/workspace/project folder'; "
     )
+
+
+def test_get_conda_environments_returns_empty_when_conda_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.conda_utils.find_conda_executable",
+        lambda: None,
+    )
+
+    assert get_conda_environments() == []
+
+
+def test_get_conda_environments_uses_existing_conda_command(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_run(command: list[str], **kwargs: object) -> SimpleNamespace:
+        captured["command"] = command
+        captured["kwargs"] = kwargs
+        return SimpleNamespace(stdout=json.dumps({"envs": []}))
+
+    monkeypatch.setattr("subprocess.run", fake_run)
+
+    assert get_conda_environments("/opt/conda/bin/conda") == []
+    assert captured == {
+        "command": ["/opt/conda/bin/conda", "env", "list", "--json"],
+        "kwargs": {
+            "capture_output": True,
+            "text": True,
+            "check": True,
+            "timeout": 15,
+        },
+    }
+
+
+def test_get_conda_environments_parses_names_and_sorts_results(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fake_run(command: list[str], **kwargs: object) -> SimpleNamespace:
+        return SimpleNamespace(
+            stdout=json.dumps(
+                {
+                    "envs": [
+                        "/home/tester/miniconda3/envs/Zulu",
+                        "/home/tester/miniconda3",
+                        "/home/tester/miniconda3/envs/alpha",
+                    ]
+                }
+            )
+        )
+
+    monkeypatch.setattr("subprocess.run", fake_run)
+
+    assert get_conda_environments("/opt/conda/bin/conda") == [
+        ("base", "/home/tester/miniconda3"),
+        ("alpha", "/home/tester/miniconda3/envs/alpha"),
+        ("Zulu", "/home/tester/miniconda3/envs/Zulu"),
+    ]
+
+
+def test_get_conda_environments_returns_empty_and_notifies_on_command_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    notifications: list[tuple[str, str]] = []
+
+    def fail_run(command: list[str], **kwargs: object) -> SimpleNamespace:
+        raise subprocess.CalledProcessError(1, command)
+
+    monkeypatch.setattr("subprocess.run", fail_run)
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.conda_utils.notify",
+        lambda title, message: notifications.append((title, message)),
+    )
+
+    assert get_conda_environments("/opt/conda/bin/conda") == []
+    assert notifications[0][0] == "Conda environment error"
+
+
+def test_get_conda_environments_returns_empty_and_notifies_on_invalid_json(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    notifications: list[tuple[str, str]] = []
+
+    def fake_run(command: list[str], **kwargs: object) -> SimpleNamespace:
+        return SimpleNamespace(stdout="not valid JSON")
+
+    monkeypatch.setattr("subprocess.run", fake_run)
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.conda_utils.notify",
+        lambda title, message: notifications.append((title, message)),
+    )
+
+    assert get_conda_environments("/opt/conda/bin/conda") == []
+    assert notifications[0][0] == "Conda environment error"

@@ -1,7 +1,11 @@
 """Shared utility functions for Nautilus Developer Toolkit."""
 
 from .command_utils import find_command
-from .conda_utils import build_conda_shell_command, find_conda_executable
+from .conda_utils import (
+    build_conda_shell_command,
+    find_conda_executable,
+    get_conda_environments,
+)
 from .filesystem import (
     file_contains_any,
     find_python_files,
@@ -16,6 +20,7 @@ __all__ = [
     "file_contains_any",
     "find_command",
     "find_conda_executable",
+    "get_conda_environments",
     "find_python_files",
     "module_name_from_file",
     "notify",
