@@ -21,6 +21,7 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     write_new_file,
 )
 from nautilus_developer_toolkit.utils import find_command as find_system_command  # noqa: E402
+from nautilus_developer_toolkit.utils import notify as send_desktop_notification  # noqa: E402
 
 
 class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
@@ -51,17 +52,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def notify(title: str, message: str) -> None:
         """Show a desktop notification when notify-send is installed."""
 
-        notify_send = shutil.which("notify-send")
-
-        if not notify_send:
-            return
-
-        subprocess.Popen(
-            [notify_send, title, message],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            start_new_session=True,
-        )
+        send_desktop_notification(title, message)
 
     def launch_process(
         self,

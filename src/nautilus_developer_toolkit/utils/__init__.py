@@ -7,6 +7,7 @@ from .filesystem import (
     search_upwards,
     write_new_file,
 )
+from .notification_utils import notify
 from .paths import module_name_from_file
 
 __all__ = [
@@ -14,6 +15,7 @@ __all__ = [
     "find_command",
     "find_python_files",
     "module_name_from_file",
+    "notify",
     "search_upwards",
     "write_new_file",
 ]
