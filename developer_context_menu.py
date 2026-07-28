@@ -18,6 +18,9 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     convert_git_remote_to_web_url as remote_to_web_url,
 )
 from nautilus_developer_toolkit.utils import (  # noqa: E402
+    create_menu_item as build_menu_item,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
     docker_compose_available as is_docker_compose_available,
 )
 from nautilus_developer_toolkit.utils import (  # noqa: E402
@@ -99,11 +102,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     ) -> Nautilus.MenuItem:
         """Create one Nautilus menu item."""
 
-        return Nautilus.MenuItem(
-            name=name,
-            label=label,
-            tip=tip,
-            icon=icon,
+        return build_menu_item(
+            Nautilus.MenuItem,
+            name,
+            label,
+            tip,
+            icon,
         )
 
     def run_terminal_command(

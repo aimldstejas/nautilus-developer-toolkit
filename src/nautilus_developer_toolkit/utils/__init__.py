@@ -14,6 +14,7 @@ from .filesystem import (
     write_new_file,
 )
 from .git_utils import convert_git_remote_to_web_url, get_git_remote_url, get_git_root
+from .menu_utils import create_menu_item
 from .notification_utils import notify
 from .paths import get_local_path, module_name_from_file
 from .process_utils import launch_process
@@ -28,6 +29,7 @@ __all__ = [
     "get_conda_environments",
     "get_git_root",
     "convert_git_remote_to_web_url",
+    "create_menu_item",
     "get_git_remote_url",
     "get_local_path",
     "find_python_files",
