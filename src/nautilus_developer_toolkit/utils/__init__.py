@@ -12,6 +12,7 @@ from .filesystem import (
     search_upwards,
     write_new_file,
 )
+from .git_utils import get_git_root
 from .notification_utils import notify
 from .paths import module_name_from_file
 from .process_utils import launch_process
@@ -22,6 +23,7 @@ __all__ = [
     "find_command",
     "find_conda_executable",
     "get_conda_environments",
+    "get_git_root",
     "find_python_files",
     "module_name_from_file",
     "launch_process",

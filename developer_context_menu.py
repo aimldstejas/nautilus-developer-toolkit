@@ -27,6 +27,9 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     get_conda_environments as list_conda_environments,
 )
 from nautilus_developer_toolkit.utils import (  # noqa: E402
+    get_git_root as find_git_root,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
     launch_process as launch_detached_process,
 )
 from nautilus_developer_toolkit.utils import notify as send_desktop_notification  # noqa: E402
@@ -356,38 +359,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def get_git_root(self, folder_path: str) -> str | None:
         """Return the repository root containing the selected folder."""
 
-        git = self.find_command(["git"])
-
-        if not git:
-            return None
-
-        try:
-            result = subprocess.run(
-                [
-                    git,
-                    "-C",
-                    folder_path,
-                    "rev-parse",
-                    "--show-toplevel",
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=10,
-            )
-
-            if result.returncode != 0:
-                return None
-
-            git_root = result.stdout.strip()
-
-            if not git_root:
-                return None
-
-            return git_root
-
-        except Exception:
-            return None
+        return find_git_root(folder_path)
 
     def get_git_remote_url(self, repository_path: str) -> str | None:
         """Return the origin remote URL for a Git repository."""
