@@ -15,6 +15,9 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     build_conda_shell_command as build_conda_command,
 )
 from nautilus_developer_toolkit.utils import (  # noqa: E402
+    convert_git_remote_to_web_url as remote_to_web_url,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
     file_contains_any,
     find_python_files,
     module_name_from_file,
@@ -373,30 +376,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def convert_git_remote_to_web_url(remote_url: str) -> str | None:
         """Convert common Git SSH remotes into browser URLs."""
 
-        remote_url = remote_url.strip()
-
-        if remote_url.startswith("git@"):
-            host_and_path = remote_url[4:]
-
-            if ":" not in host_and_path:
-                return None
-
-            host, repository_path = host_and_path.split(":", 1)
-            remote_url = f"https://{host}/{repository_path}"
-
-        elif remote_url.startswith("ssh://git@"):
-            remote_url = "https://" + remote_url[len("ssh://git@") :]
-
-        elif remote_url.startswith("git://"):
-            remote_url = "https://" + remote_url[len("git://") :]
-
-        elif not remote_url.startswith(("http://", "https://")):
-            return None
-
-        if remote_url.endswith(".git"):
-            remote_url = remote_url[:-4]
-
-        return remote_url
+        return remote_to_web_url(remote_url)
 
     # ================================================================
     # Docker helpers

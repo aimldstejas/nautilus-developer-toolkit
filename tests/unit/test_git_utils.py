@@ -4,7 +4,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from nautilus_developer_toolkit.utils.git_utils import get_git_remote_url, get_git_root
+from nautilus_developer_toolkit.utils.git_utils import (
+    convert_git_remote_to_web_url,
+    get_git_remote_url,
+    get_git_root,
+)
 
 
 def test_get_git_root_returns_none_when_git_is_unavailable(
@@ -137,3 +141,22 @@ def test_get_git_remote_url_returns_none_for_unavailable_git_or_failures(
 
     monkeypatch.setattr("subprocess.run", fail_run)
     assert get_git_remote_url("/workspace/project") is None
+
+
+@pytest.mark.parametrize(
+    ("remote", "expected"),
+    [
+        ("git@github.com:owner/repo.git", "https://github.com/owner/repo"),
+        ("ssh://git@github.com/owner/repo.git", "https://github.com/owner/repo"),
+        ("git://github.com/owner/repo.git", "https://github.com/owner/repo"),
+        ("https://github.com/owner/repo.git", "https://github.com/owner/repo"),
+        ("http://github.com/owner/repo.git", "http://github.com/owner/repo"),
+    ],
+)
+def test_convert_git_remote_to_web_url(remote: str, expected: str) -> None:
+    assert convert_git_remote_to_web_url(remote) == expected
+
+
+@pytest.mark.parametrize("remote", ["", "   ", "owner/repo", "git@github.com/owner/repo"])
+def test_convert_git_remote_to_web_url_rejects_unsupported_formats(remote: str) -> None:
+    assert convert_git_remote_to_web_url(remote) is None

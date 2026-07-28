@@ -78,3 +78,32 @@ def get_git_remote_url(repository_path: str) -> str | None:
 
     except Exception:
         return None
+
+
+def convert_git_remote_to_web_url(remote_url: str) -> str | None:
+    """Convert common Git SSH remotes into browser URLs."""
+
+    remote_url = remote_url.strip()
+
+    if remote_url.startswith("git@"):
+        host_and_path = remote_url[4:]
+
+        if ":" not in host_and_path:
+            return None
+
+        host, repository_path = host_and_path.split(":", 1)
+        remote_url = f"https://{host}/{repository_path}"
+
+    elif remote_url.startswith("ssh://git@"):
+        remote_url = "https://" + remote_url[len("ssh://git@") :]
+
+    elif remote_url.startswith("git://"):
+        remote_url = "https://" + remote_url[len("git://") :]
+
+    elif not remote_url.startswith(("http://", "https://")):
+        return None
+
+    if remote_url.endswith(".git"):
+        remote_url = remote_url[:-4]
+
+    return remote_url
