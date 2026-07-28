@@ -13,6 +13,9 @@ gi.require_version("Nautilus", "4.0")
 from gi.repository import GObject, Nautilus  # noqa: E402
 
 from nautilus_developer_toolkit.utils import (  # noqa: E402
+    build_conda_shell_command as build_conda_command,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
     file_contains_any,
     find_python_files,
     module_name_from_file,
@@ -326,35 +329,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         if not conda_executable:
             raise RuntimeError("Conda executable was not found.")
 
-        conda_root = Path(conda_executable).parent.parent
-        conda_script = conda_root / "etc" / "profile.d" / "conda.sh"
-
-        quoted_folder = shlex.quote(folder_path)
-        quoted_environment = shlex.quote(environment_path)
-        quoted_conda_script = shlex.quote(str(conda_script))
-
-        command_parts = [
-            f"source {quoted_conda_script}",
-            f"conda activate {quoted_environment}",
-            f"cd {quoted_folder}",
-            'echo "Active Conda environment: $CONDA_DEFAULT_ENV"',
-            'echo "Working directory: $(pwd)"',
-        ]
-
-        if application_command:
-            quoted_message = shlex.quote(
-                f"{application_command} is not installed in this environment."
-            )
-
-            command_parts.append(
-                f"if command -v {application_command} >/dev/null 2>&1; "
-                f"then {application_command}; "
-                f"else echo {quoted_message}; echo; fi"
-            )
-
-        command_parts.append("exec bash")
-
-        return "; ".join(command_parts)
+        return build_conda_command(
+            conda_executable,
+            environment_path,
+            folder_path,
+            application_command,
+        )
 
     def open_conda_terminal(
         self,

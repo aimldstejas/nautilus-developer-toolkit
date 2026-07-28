@@ -4,7 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from nautilus_developer_toolkit.utils.conda_utils import find_conda_executable
+from nautilus_developer_toolkit.utils.conda_utils import (
+    build_conda_shell_command,
+    find_conda_executable,
+)
 
 
 def test_find_conda_executable_returns_path_discovery_result(
@@ -65,3 +68,50 @@ def test_find_conda_executable_preserves_search_order(monkeypatch: pytest.Monkey
         "/opt/conda/bin/conda",
         "/usr/bin/conda",
     ]
+
+
+def test_build_conda_shell_command_returns_existing_simple_command() -> None:
+    command = build_conda_shell_command(
+        "/opt/conda/bin/conda",
+        "/opt/conda/envs/development",
+        "/workspace/project",
+    )
+
+    assert command == (
+        "source /opt/conda/etc/profile.d/conda.sh; "
+        "conda activate /opt/conda/envs/development; "
+        "cd /workspace/project; "
+        'echo "Active Conda environment: $CONDA_DEFAULT_ENV"; '
+        'echo "Working directory: $(pwd)"; '
+        "exec bash"
+    )
+
+
+def test_build_conda_shell_command_preserves_application_command() -> None:
+    command = build_conda_shell_command(
+        "/opt/conda/bin/conda",
+        "/opt/conda/envs/development",
+        "/workspace/project",
+        "streamlit run app.py",
+    )
+
+    assert command.endswith(
+        "if command -v streamlit run app.py >/dev/null 2>&1; "
+        "then streamlit run app.py; "
+        "else echo 'streamlit run app.py is not installed in this environment.'; echo; fi; "
+        "exec bash"
+    )
+
+
+def test_build_conda_shell_command_quotes_paths_with_spaces() -> None:
+    command = build_conda_shell_command(
+        "/home/tester/miniconda 3/bin/conda",
+        "/home/tester/miniconda 3/envs/my environment",
+        "/workspace/project folder",
+    )
+
+    assert command.startswith(
+        "source '/home/tester/miniconda 3/etc/profile.d/conda.sh'; "
+        "conda activate '/home/tester/miniconda 3/envs/my environment'; "
+        "cd '/workspace/project folder'; "
+    )
