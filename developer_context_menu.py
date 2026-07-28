@@ -27,6 +27,9 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     get_conda_environments as list_conda_environments,
 )
 from nautilus_developer_toolkit.utils import (  # noqa: E402
+    get_git_remote_url as find_git_remote_url,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
     get_git_root as find_git_root,
 )
 from nautilus_developer_toolkit.utils import (  # noqa: E402
@@ -364,39 +367,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def get_git_remote_url(self, repository_path: str) -> str | None:
         """Return the origin remote URL for a Git repository."""
 
-        git = self.find_command(["git"])
-
-        if not git:
-            return None
-
-        try:
-            result = subprocess.run(
-                [
-                    git,
-                    "-C",
-                    repository_path,
-                    "remote",
-                    "get-url",
-                    "origin",
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=10,
-            )
-
-            if result.returncode != 0:
-                return None
-
-            remote_url = result.stdout.strip()
-
-            if not remote_url:
-                return None
-
-            return remote_url
-
-        except Exception:
-            return None
+        return find_git_remote_url(repository_path)
 
     @staticmethod
     def convert_git_remote_to_web_url(remote_url: str) -> str | None:
