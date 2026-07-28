@@ -18,6 +18,9 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     convert_git_remote_to_web_url as remote_to_web_url,
 )
 from nautilus_developer_toolkit.utils import (  # noqa: E402
+    docker_compose_available as is_docker_compose_available,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
     file_contains_any,
     find_python_files,
     module_name_from_file,
@@ -404,24 +407,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def docker_compose_available(self) -> bool:
         """Check whether the Docker Compose command is available."""
 
-        docker = self.find_command(["docker"])
-
-        if not docker:
-            return False
-
-        try:
-            result = subprocess.run(
-                [docker, "compose", "version"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=False,
-                timeout=10,
-            )
-
-            return result.returncode == 0
-
-        except Exception:
-            return False
+        return is_docker_compose_available()
 
     # ================================================================
     # Editor actions

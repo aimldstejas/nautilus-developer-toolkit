@@ -6,6 +6,7 @@ from .conda_utils import (
     find_conda_executable,
     get_conda_environments,
 )
+from .docker_utils import docker_compose_available
 from .filesystem import (
     file_contains_any,
     find_python_files,
@@ -19,6 +20,7 @@ from .process_utils import launch_process
 
 __all__ = [
     "build_conda_shell_command",
+    "docker_compose_available",
     "file_contains_any",
     "find_command",
     "find_conda_executable",
