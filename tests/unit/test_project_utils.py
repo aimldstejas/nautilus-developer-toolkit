@@ -8,7 +8,10 @@ from typing import Any
 
 import pytest
 
-from nautilus_developer_toolkit.utils.project_utils import detect_project_root
+from nautilus_developer_toolkit.utils.project_utils import (
+    detect_project,
+    detect_project_root,
+)
 
 
 def test_detect_project_root_returns_git_root_before_marker_search(
@@ -249,5 +252,265 @@ def test_detect_project_root_wrapper_forwards_original_path(
 
     assert context_menu_module.DeveloperContextMenu().detect_project_root("relative/project") == (
         "/delegated/root"
+    )
+    assert received == ["relative/project"]
+
+
+def test_detect_project_forwards_root_and_preserves_default_contract(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    received: list[str] = []
+
+    def fake_detect_project_root(folder_path: str) -> str:
+        received.append(folder_path)
+        return str(tmp_path)
+
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.detect_project_root",
+        fake_detect_project_root,
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.get_git_root",
+        lambda folder_path: None,
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.find_compose_file",
+        lambda folder_path: None,
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.find_python_files",
+        lambda root: [],
+    )
+
+    assert detect_project("relative/project") == {
+        "root": str(tmp_path.resolve()),
+        "git": False,
+        "python": False,
+        "environment_file": None,
+        "local_environment": None,
+        "requirements": None,
+        "pyproject": None,
+        "jupyter": False,
+        "streamlit": False,
+        "streamlit_entry": None,
+        "fastapi": False,
+        "fastapi_entry": None,
+        "docker": False,
+        "compose_file": None,
+        "dockerfile": None,
+        "modelfile": None,
+    }
+    assert received == ["relative/project"]
+
+
+def test_detect_project_propagates_project_root_errors(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail_detect_project_root(folder_path: str) -> str:
+        raise OSError("root failed")
+
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.detect_project_root",
+        fail_detect_project_root,
+    )
+
+    with pytest.raises(OSError, match="root failed"):
+        detect_project("project")
+
+
+def test_detect_project_preserves_environment_and_local_environment_order(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "environment.yml").touch()
+    (tmp_path / "environment.yaml").touch()
+    for name in [".venv", "venv"]:
+        python_path = tmp_path / name / "bin" / "python"
+        python_path.parent.mkdir(parents=True)
+        python_path.touch()
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.detect_project_root",
+        lambda folder_path: str(tmp_path),
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.get_git_root",
+        lambda folder_path: "/git/root",
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.find_compose_file",
+        lambda folder_path: None,
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.find_python_files",
+        lambda root: [],
+    )
+
+    project = detect_project("project")
+
+    assert project["git"] is True
+    assert project["environment_file"] == str(tmp_path / "environment.yml")
+    assert project["local_environment"] == str(tmp_path / ".venv")
+    assert project["python"] is True
+
+
+def test_detect_project_preserves_project_file_and_docker_flags(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    for name in ["requirements.txt", "pyproject.toml", "Dockerfile", "Modelfile"]:
+        (tmp_path / name).touch()
+    compose_file = tmp_path / "compose.yml"
+    compose_file.touch()
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.detect_project_root",
+        lambda folder_path: str(tmp_path),
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.get_git_root",
+        lambda folder_path: None,
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.find_compose_file",
+        lambda folder_path: str(compose_file),
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.find_python_files",
+        lambda root: [],
+    )
+
+    project = detect_project("project")
+
+    assert project["requirements"] == str(tmp_path / "requirements.txt")
+    assert project["pyproject"] == str(tmp_path / "pyproject.toml")
+    assert project["compose_file"] == str(compose_file)
+    assert project["dockerfile"] == str(tmp_path / "Dockerfile")
+    assert project["modelfile"] == str(tmp_path / "Modelfile")
+    assert project["python"] is True
+    assert project["docker"] is True
+
+
+def test_detect_project_preserves_notebook_detection_and_rglob_failure(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    notebook = tmp_path / "analysis.ipynb"
+    notebook.touch()
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.detect_project_root",
+        lambda folder_path: str(tmp_path),
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.get_git_root",
+        lambda folder_path: None,
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.find_compose_file",
+        lambda folder_path: None,
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.find_python_files",
+        lambda root: [],
+    )
+
+    assert detect_project("project")["jupyter"] is True
+
+    def fail_rglob(path: Path, pattern: str) -> list[Path]:
+        raise OSError("rglob failed")
+
+    monkeypatch.setattr(Path, "rglob", fail_rglob)
+
+    assert detect_project("project")["jupyter"] is False
+
+
+def test_detect_project_preserves_streamlit_and_fastapi_preferred_order(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    streamlit_app = tmp_path / "streamlit_app.py"
+    other_streamlit = tmp_path / "nested" / "other.py"
+    fastapi_main = tmp_path / "api" / "main.py"
+    for path in [streamlit_app, other_streamlit, fastapi_main]:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.detect_project_root",
+        lambda folder_path: str(tmp_path),
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.get_git_root",
+        lambda folder_path: None,
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.find_compose_file",
+        lambda folder_path: None,
+    )
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.find_python_files",
+        lambda root: [other_streamlit, streamlit_app, fastapi_main],
+    )
+
+    def fake_file_contains_any(path: Path, patterns: list[str]) -> bool:
+        if "import streamlit" in patterns:
+            return path in {streamlit_app, other_streamlit}
+        return path == fastapi_main
+
+    monkeypatch.setattr(
+        "nautilus_developer_toolkit.utils.project_utils.file_contains_any",
+        fake_file_contains_any,
+    )
+
+    project = detect_project("project")
+
+    assert project["streamlit_entry"] == str(streamlit_app)
+    assert project["fastapi_entry"] == str(fastapi_main)
+    assert project["streamlit"] is True
+    assert project["fastapi"] is True
+    assert project["python"] is True
+
+
+def test_detect_project_wrapper_forwards_original_argument(monkeypatch: pytest.MonkeyPatch) -> None:
+    gi_module: Any = ModuleType("gi")
+
+    def require_version(namespace: str, version: str) -> None:
+        return None
+
+    gi_module.require_version = require_version
+    repository_module: Any = ModuleType("gi.repository")
+
+    class FakeGObject:
+        class GObject:
+            pass
+
+    class FakeNautilus:
+        class FileInfo:
+            pass
+
+        class Menu:
+            pass
+
+        class MenuProvider:
+            pass
+
+        class MenuItem:
+            pass
+
+    repository_module.GObject = FakeGObject
+    repository_module.Nautilus = FakeNautilus
+    monkeypatch.setitem(sys.modules, "gi", gi_module)
+    monkeypatch.setitem(sys.modules, "gi.repository", repository_module)
+    monkeypatch.delitem(sys.modules, "developer_context_menu", raising=False)
+    context_menu_module = importlib.import_module("developer_context_menu")
+
+    expected_project = {"root": "/delegated/root"}
+    received: list[str] = []
+
+    def fake_detect_project(folder_path: str) -> dict[str, str]:
+        received.append(folder_path)
+        return expected_project
+
+    monkeypatch.setattr(context_menu_module, "identify_project", fake_detect_project)
+
+    assert (
+        context_menu_module.DeveloperContextMenu().detect_project("relative/project")
+        is expected_project
     )
     assert received == ["relative/project"]
