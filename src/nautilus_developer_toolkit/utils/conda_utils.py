@@ -30,6 +30,29 @@ def find_conda_executable() -> str | None:
     return None
 
 
+def read_conda_environment_name(
+    environment_file: Path,
+) -> str | None:
+    """Read the environment name from environment.yml."""
+
+    try:
+        for line in environment_file.read_text(
+            encoding="utf-8",
+            errors="ignore",
+        ).splitlines():
+            stripped = line.strip()
+
+            if stripped.startswith("name:"):
+                value = stripped.split(":", 1)[1].strip()
+
+                if value:
+                    return value
+    except Exception:
+        return None
+
+    return None
+
+
 def get_conda_environments(conda_executable: str | None = None) -> list[tuple[str, str]]:
     """Return Conda environments as name/path tuples."""
 

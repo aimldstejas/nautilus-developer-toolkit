@@ -1,9 +1,12 @@
 """Tests for Conda discovery utilities."""
 
+import importlib
 import json
 import subprocess
+import sys
 from pathlib import Path
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
+from typing import Any
 
 import pytest
 
@@ -11,6 +14,7 @@ from nautilus_developer_toolkit.utils.conda_utils import (
     build_conda_shell_command,
     find_conda_executable,
     get_conda_environments,
+    read_conda_environment_name,
 )
 
 
@@ -215,3 +219,127 @@ def test_get_conda_environments_returns_empty_and_notifies_on_invalid_json(
 
     assert get_conda_environments("/opt/conda/bin/conda") == []
     assert notifications[0][0] == "Conda environment error"
+
+
+def test_read_conda_environment_name_returns_first_nonempty_name(tmp_path: Path) -> None:
+    environment_file = tmp_path / "environment.yml"
+    environment_file.write_text(
+        "name: first-environment\nname: second-environment\n",
+        encoding="utf-8",
+    )
+
+    assert read_conda_environment_name(environment_file) == "first-environment"
+
+
+def test_read_conda_environment_name_strips_surrounding_whitespace(tmp_path: Path) -> None:
+    environment_file = tmp_path / "environment.yml"
+    environment_file.write_text("  name:  development  \n", encoding="utf-8")
+
+    assert read_conda_environment_name(environment_file) == "development"
+
+
+@pytest.mark.parametrize(
+    "contents",
+    [
+        "",
+        "   \n\t",
+        "channels:\n  - conda-forge\n",
+        "name:\n",
+    ],
+)
+def test_read_conda_environment_name_returns_none_for_empty_or_malformed_content(
+    tmp_path: Path,
+    contents: str,
+) -> None:
+    environment_file = tmp_path / "environment.yml"
+    environment_file.write_text(contents, encoding="utf-8")
+
+    assert read_conda_environment_name(environment_file) is None
+
+
+def test_read_conda_environment_name_returns_none_for_missing_file(tmp_path: Path) -> None:
+    assert read_conda_environment_name(tmp_path / "environment.yml") is None
+
+
+def test_read_conda_environment_name_returns_none_for_directory(tmp_path: Path) -> None:
+    environment_file = tmp_path / "environment.yml"
+    environment_file.mkdir()
+
+    assert read_conda_environment_name(environment_file) is None
+
+
+def test_read_conda_environment_name_ignores_invalid_utf8_bytes(tmp_path: Path) -> None:
+    environment_file = tmp_path / "environment.yml"
+    environment_file.write_bytes(b"\xffname: byte-safe\n")
+
+    assert read_conda_environment_name(environment_file) == "byte-safe"
+
+
+def test_read_conda_environment_name_returns_none_for_read_error(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    environment_file = tmp_path / "environment.yml"
+
+    def fail_read_text(path: Path, **kwargs: object) -> str:
+        raise PermissionError("permission denied")
+
+    monkeypatch.setattr(Path, "read_text", fail_read_text)
+
+    assert read_conda_environment_name(environment_file) is None
+
+
+def test_read_conda_environment_name_wrapper_forwards_original_path(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    gi_module: Any = ModuleType("gi")
+
+    def require_version(namespace: str, version: str) -> None:
+        return None
+
+    gi_module.require_version = require_version
+    repository_module: Any = ModuleType("gi.repository")
+
+    class FakeGObject:
+        class GObject:
+            pass
+
+    class FakeNautilus:
+        class FileInfo:
+            pass
+
+        class Menu:
+            pass
+
+        class MenuProvider:
+            pass
+
+        class MenuItem:
+            pass
+
+    repository_module.GObject = FakeGObject
+    repository_module.Nautilus = FakeNautilus
+    monkeypatch.setitem(sys.modules, "gi", gi_module)
+    monkeypatch.setitem(sys.modules, "gi.repository", repository_module)
+    monkeypatch.delitem(sys.modules, "developer_context_menu", raising=False)
+    context_menu_module = importlib.import_module("developer_context_menu")
+
+    received: list[Path] = []
+
+    def fake_read_environment_name(environment_file: Path) -> str:
+        received.append(environment_file)
+        return "delegated-environment"
+
+    monkeypatch.setattr(
+        context_menu_module,
+        "read_environment_name_from_file",
+        fake_read_environment_name,
+    )
+    environment_file = tmp_path / "environment.yml"
+
+    assert (
+        context_menu_module.DeveloperContextMenu.read_conda_environment_name(environment_file)
+        == "delegated-environment"
+    )
+    assert received == [environment_file]

@@ -5,6 +5,7 @@ from .conda_utils import (
     build_conda_shell_command,
     find_conda_executable,
     get_conda_environments,
+    read_conda_environment_name,
 )
 from .docker_utils import docker_compose_available, find_compose_file
 from .filesystem import (
@@ -27,6 +28,7 @@ __all__ = [
     "find_command",
     "find_conda_executable",
     "get_conda_environments",
+    "read_conda_environment_name",
     "get_git_root",
     "convert_git_remote_to_web_url",
     "create_menu_item",

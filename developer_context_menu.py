@@ -51,6 +51,9 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     launch_process as launch_detached_process,
 )
 from nautilus_developer_toolkit.utils import notify as send_desktop_notification  # noqa: E402
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    read_conda_environment_name as read_environment_name_from_file,
+)
 
 
 class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
@@ -2210,22 +2213,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     ) -> str | None:
         """Read the environment name from environment.yml."""
 
-        try:
-            for line in environment_file.read_text(
-                encoding="utf-8",
-                errors="ignore",
-            ).splitlines():
-                stripped = line.strip()
-
-                if stripped.startswith("name:"):
-                    value = stripped.split(":", 1)[1].strip()
-
-                    if value:
-                        return value
-        except Exception:
-            return None
-
-        return None
+        return read_environment_name_from_file(environment_file)
 
     def create_project_environment(
         self,
