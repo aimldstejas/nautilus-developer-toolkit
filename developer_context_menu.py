@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import json
-import os
 import shlex
 import shutil
 import subprocess
@@ -21,6 +20,7 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     write_new_file,
 )
 from nautilus_developer_toolkit.utils import find_command as find_system_command  # noqa: E402
+from nautilus_developer_toolkit.utils import find_conda_executable as find_conda_path  # noqa: E402
 from nautilus_developer_toolkit.utils import notify as send_desktop_notification  # noqa: E402
 
 
@@ -193,21 +193,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def find_conda_executable() -> str | None:
         """Find Conda without relying only on Nautilus's PATH."""
 
-        candidates = [
-            os.environ.get("CONDA_EXE"),
-            str(Path.home() / "miniconda3" / "bin" / "conda"),
-            str(Path.home() / "anaconda3" / "bin" / "conda"),
-            str(Path.home() / "miniforge3" / "bin" / "conda"),
-            str(Path.home() / "mambaforge" / "bin" / "conda"),
-            "/opt/conda/bin/conda",
-            shutil.which("conda"),
-        ]
-
-        for candidate in candidates:
-            if candidate and Path(candidate).is_file():
-                return candidate
-
-        return None
+        return find_conda_path()
 
     def get_conda_environments(self) -> list[tuple[str, str]]:
         """Return Conda environments as name/path tuples."""
