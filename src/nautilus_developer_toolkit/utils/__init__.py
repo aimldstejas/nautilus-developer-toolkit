@@ -14,6 +14,7 @@ from .filesystem import (
 )
 from .notification_utils import notify
 from .paths import module_name_from_file
+from .process_utils import launch_process
 
 __all__ = [
     "build_conda_shell_command",
@@ -23,6 +24,7 @@ __all__ = [
     "get_conda_environments",
     "find_python_files",
     "module_name_from_file",
+    "launch_process",
     "notify",
     "search_upwards",
     "write_new_file",

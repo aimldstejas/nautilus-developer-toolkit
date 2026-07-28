@@ -26,6 +26,9 @@ from nautilus_developer_toolkit.utils import find_conda_executable as find_conda
 from nautilus_developer_toolkit.utils import (  # noqa: E402
     get_conda_environments as list_conda_environments,
 )
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    launch_process as launch_detached_process,
+)
 from nautilus_developer_toolkit.utils import notify as send_desktop_notification  # noqa: E402
 
 
@@ -67,19 +70,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     ) -> None:
         """Launch an application safely."""
 
-        try:
-            subprocess.Popen(
-                command,
-                cwd=working_directory,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                start_new_session=True,
-            )
-        except Exception as error:
-            self.notify(
-                "Developer Context Menu",
-                f"Could not launch {application_name}: {error}",
-            )
+        return launch_detached_process(
+            command,
+            working_directory,
+            application_name,
+            notify_callback=self.notify,
+        )
 
     @staticmethod
     def create_menu_item(
