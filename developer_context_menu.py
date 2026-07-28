@@ -28,6 +28,9 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     write_new_file,
 )
 from nautilus_developer_toolkit.utils import find_command as find_system_command  # noqa: E402
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    find_compose_file as locate_compose_file,
+)
 from nautilus_developer_toolkit.utils import find_conda_executable as find_conda_path  # noqa: E402
 from nautilus_developer_toolkit.utils import (  # noqa: E402
     get_conda_environments as list_conda_environments,
@@ -389,20 +392,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def find_compose_file(folder_path: str) -> str | None:
         """Find a Docker Compose file in the selected folder."""
 
-        candidates = [
-            "compose.yml",
-            "compose.yaml",
-            "docker-compose.yml",
-            "docker-compose.yaml",
-        ]
-
-        for candidate in candidates:
-            compose_path = Path(folder_path) / candidate
-
-            if compose_path.is_file():
-                return str(compose_path)
-
-        return None
+        return locate_compose_file(folder_path)
 
     def docker_compose_available(self) -> bool:
         """Check whether the Docker Compose command is available."""
