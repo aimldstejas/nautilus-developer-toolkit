@@ -21,13 +21,15 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
     create_menu_item as build_menu_item,
 )
 from nautilus_developer_toolkit.utils import (  # noqa: E402
+    detect_project_root as find_project_root,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
     docker_compose_available as is_docker_compose_available,
 )
 from nautilus_developer_toolkit.utils import (  # noqa: E402
     file_contains_any,
     find_python_files,
     module_name_from_file,
-    search_upwards,
     write_new_file,
 )
 from nautilus_developer_toolkit.utils import find_command as find_system_command  # noqa: E402
@@ -1247,35 +1249,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def detect_project_root(self, folder_path: str) -> str:
         """Return the most likely project root."""
 
-        git_root = self.get_git_root(folder_path)
-
-        if git_root:
-            return git_root
-
-        markers = [
-            "pyproject.toml",
-            "requirements.txt",
-            "environment.yml",
-            "environment.yaml",
-            "Pipfile",
-            "poetry.lock",
-            "uv.lock",
-            "compose.yml",
-            "compose.yaml",
-            "docker-compose.yml",
-            "docker-compose.yaml",
-            "Dockerfile",
-            "Modelfile",
-            ".venv",
-            "venv",
-        ]
-
-        marker = search_upwards(folder_path, markers)
-
-        if marker:
-            return str(marker.parent)
-
-        return str(Path(folder_path).expanduser().resolve())
+        return find_project_root(folder_path)
 
     def detect_project(self, folder_path: str) -> dict:
         """Inspect the selected folder and identify project capabilities."""
