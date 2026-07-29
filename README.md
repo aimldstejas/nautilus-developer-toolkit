@@ -268,12 +268,13 @@ NDT does not install all of these applications automatically. Menu actions depen
 
 NDT is currently distributed from source.
 
-The stable Version 1 extension is preserved as the project baseline while installation and packaging workflows continue to mature.
+The current stable public release is Version `1.0.0` at tag `v1.0.0`. The `develop` branch contains unreleased Version 2 development at `2.0.0.dev0`; it uses a modular package plus the repository-root Nautilus extension entrypoint and is not yet stable.
 
 See the complete installation instructions:
 
 - [Installation Guide](docs/INSTALLATION.md)
 - [Quick Start](docs/QUICK_START.md)
+- [Version 1 to Version 2 Development Migration Guide](docs/MIGRATION_GUIDE.md)
 - [Configuration Guide](docs/CONFIGURATION.md)
 - [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
 
@@ -328,6 +329,7 @@ Available documentation includes:
 
 - [Installation](docs/INSTALLATION.md)
 - [Quick Start](docs/QUICK_START.md)
+- [Migration Guide](docs/MIGRATION_GUIDE.md)
 - [User Guide](docs/USER_GUIDE.md)
 - [Configuration](docs/CONFIGURATION.md)
 - [Project Wizard](docs/PROJECT_WIZARD.md)
@@ -435,7 +437,9 @@ Version 1.0 is:
 
 ## Version 2 Development
 
-**Version 2 utility-extraction phase complete.**
+**Current development version:** `2.0.0.dev0` on `develop`
+
+Version 2 is not yet a stable release.
 
 Completed foundations include:
 
@@ -445,13 +449,15 @@ Completed foundations include:
 - Compatibility wrappers in `DeveloperContextMenu` where verified
 - Focused unit-test coverage for extracted utility responsibilities
 - Ruff linting, mypy type checking, pre-commit checks, and repository workflows
-- Documentation synchronization for the utility-extraction milestone
+- Integration of the modular architecture and extracted utilities into `develop`
+- Version and packaging metadata alignment
+- Warning-free isolated wheel and source-distribution validation
 
 Reusable non-UI logic now resides in focused utility modules, while `DeveloperContextMenu` remains the Nautilus integration, UI presentation, workflow coordination, notification, process, and menu-construction boundary.
 
 The utility-extraction phase introduced no intended user-facing behavior change. The Version 2 implementation is not yet a stable release, and this milestone does not mark all Version 2 work as complete.
 
-The next step is integration review and merge preparation.
+Current release-readiness work covers documentation, external GitHub metadata and governance, clean system-Python installation and Nautilus deployment validation, and a future release-candidate phase before any stable Version 2 release.
 
 ## Branch Model
 
@@ -461,7 +467,7 @@ The repository uses:
 - `develop` for integration
 - Focused feature branches for Version 2 development
 
-The `main` branch is protected.
+`main` is the stable Version 1 boundary, but GitHub branch protection is not currently configured. Enabling protection before a Version 2 pull request to `main` is a pending release-readiness task.
 
 ---
 
@@ -491,7 +497,7 @@ pytest
 pre-commit
 ```
 
-Local quality checks and repository workflows support the current Version 2 development branch. Integration review and merge preparation remain the next controlled steps.
+Local quality checks and GitHub Actions workflows support the current Version 2 development branch. Release-readiness validation must finish before release-candidate preparation or a controlled pull request to `main`.
 
 ---
 
@@ -641,15 +647,19 @@ Nautilus Developer Toolkit is released under the [MIT License](LICENSE).
 | Documentation foundation | Complete |
 | Utility-extraction milestone documentation | Complete |
 | Version 1.0 tag | Created |
-| Protected stable branch | Configured |
-| Version 2 modularization | In progress |
+| Stable Version 1 boundary | `main` at tag `v1.0.0` |
+| GitHub branch protection | Not configured; pending before the Version 2 pull request |
+| Version 2 modularization | Integrated into `develop` |
 | Utility-extraction phase | Complete |
-| Unit testing | Focused utility coverage established |
-| Local quality checks and repository workflows | Configured |
-| Integration review and merge preparation | Next |
+| Version 2 development version | `2.0.0.dev0` (unreleased) |
+| Unit testing | `96` unit tests passing |
+| Local quality checks and GitHub Actions | Passing |
+| Release and migration documentation | Current |
+| Clean system-Python and Nautilus deployment validation | Pending |
+| Release-candidate preparation | Future controlled phase |
 | Plugin architecture | Planned |
 | Configuration system | Planned |
-| Distribution packaging | Planned |
+| Python package build | Wheel and source distribution validated |
 | AI-assisted development | Planned for Version 3 |
 
 ---

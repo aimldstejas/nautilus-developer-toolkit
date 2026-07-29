@@ -56,9 +56,16 @@ The current work is part of the incremental Version 2 modular-refactoring effort
 
 #### Documentation
 
-- Completed documentation synchronization for the utility-extraction milestone.
-- Recorded the implemented utility-layer architecture, completed utility-extraction status, and remaining Version 2 work.
-- The next step is integration review and merge preparation.
+- Aligned release, roadmap, project-context, installation, quick-start, and migration guidance with the integrated Version 2 development state.
+- Replaced the obsolete internal extraction plan with a user-oriented guide for migrating from stable Version 1 to Version 2 development, including backup, validation, rollback, uninstall, and deterministic restoration.
+
+#### Packaging and Deployment
+
+- Aligned `VERSION` and package metadata at the unreleased development version `2.0.0.dev0`.
+- Modernized package license metadata to use the SPDX `MIT` expression and explicit `LICENSE` inclusion.
+- Validated warning-free wheel and source-distribution builds and a disposable wheel installation.
+- Documented the Version 2 system-Python package installation and repository-root Nautilus extension deployment model.
+- Clarified that stable Version 1 remains a tagged single-file deployment while Version 2 development requires both the installed package and extension entrypoint.
 
 ### Fixed
 
@@ -72,14 +79,14 @@ The current work is part of the incremental Version 2 modular-refactoring effort
 - No known security vulnerabilities were introduced by the current Version 2 development work.
 - No credentials, API keys, model files, raw datasets, or private configuration files are intentionally tracked.
 - Optional AI and local-service integrations remain separated from the core toolkit.
-- The protected `main` branch remains the stable release boundary.
+- `main` remains the stable Version 1 boundary; configuring GitHub branch protection before a Version 2 pull request is a pending release-readiness task.
 
 ### Development Notes
 
 - Version 2 remains under active development and is not yet a stable release.
 - `developer_context_menu.py` remains partially responsible for application behavior through orchestration and UI-bound methods.
 - Further extraction is not automatically beneficial where it would fragment coordinated workflows.
-- Integration review and merge preparation are the next controlled steps.
+- Remaining release-readiness work includes external GitHub metadata and branch-governance corrections, clean system-Python and Nautilus deployment validation, and a future release-candidate phase.
 
 ---
 
