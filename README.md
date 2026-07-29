@@ -14,29 +14,29 @@ Instead of repeatedly opening terminals, changing directories, activating enviro
 
 NDT is designed around four principles:
 
-* Linux-first
-* Local-first
-* Transparent automation
-* Optional AI integration
+- Linux-first
+- Local-first
+- Transparent automation
+- Optional AI integration
 
 ---
 
 ## Table of Contents
 
-* [Why NDT?](#why-ndt)
-* [Key Features](#key-features)
-* [Project Wizard](#project-wizard)
-* [Supported Tools](#supported-tools)
-* [Installation](#installation)
-* [Compatibility](#compatibility)
-* [Documentation](#documentation)
-* [Project Architecture](#project-architecture)
-* [Development Status](#development-status)
-* [Roadmap](#roadmap)
-* [Contributing](#contributing)
-* [Security](#security)
-* [Support](#support)
-* [License](#license)
+- [Why NDT?](#why-ndt)
+- [Key Features](#key-features)
+- [Project Wizard](#project-wizard)
+- [Supported Tools](#supported-tools)
+- [Installation](#installation)
+- [Compatibility](#compatibility)
+- [Documentation](#documentation)
+- [Project Architecture](#project-architecture)
+- [Development Status](#development-status)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [Security](#security)
+- [Support](#support)
+- [License](#license)
 
 ---
 
@@ -55,17 +55,17 @@ NDT reduces this repetition by exposing development actions directly inside Naut
 
 A project folder can provide relevant actions for:
 
-* Editors
-* Terminals
-* Python environments
-* Git repositories
-* Docker projects
-* Streamlit applications
-* FastAPI applications
-* Jupyter projects
-* Local AI services
-* NVIDIA GPUs and CUDA
-* Project generation
+- Editors
+- Terminals
+- Python environments
+- Git repositories
+- Docker projects
+- Streamlit applications
+- FastAPI applications
+- Jupyter projects
+- Local AI services
+- NVIDIA GPUs and CUDA
+- Project generation
 
 The available context-menu actions adapt to the selected directory and detected project type.
 
@@ -77,15 +77,15 @@ The available context-menu actions adapt to the selected directory and detected 
 
 NDT automatically detects common development projects and environments, including:
 
-* Git repositories
-* Python projects
-* Python virtual environments
-* Conda environments
-* Docker projects
-* Streamlit applications
-* FastAPI applications
-* Jupyter projects
-* Ollama Modelfiles
+- Git repositories
+- Python projects
+- Python virtual environments
+- Conda environments
+- Docker projects
+- Streamlit applications
+- FastAPI applications
+- Jupyter projects
+- Ollama Modelfiles
 
 Detected project information is used to display relevant context-menu actions.
 
@@ -97,18 +97,18 @@ Open supported development tools directly in the selected directory.
 
 Current integrations include:
 
-* gedit
-* VSCodium
-* PyCharm
-* GNOME Terminal
+- gedit
+- VSCodium
+- PyCharm
+- GNOME Terminal
 
 Typical actions include:
 
-* Open gedit Here
-* Open VSCodium Here
-* Open PyCharm Here
-* Open Terminal Here
-* Open environment-aware terminal
+- Open gedit Here
+- Open VSCodium Here
+- Open PyCharm Here
+- Open Terminal Here
+- Open environment-aware terminal
 
 ---
 
@@ -118,16 +118,16 @@ NDT provides shortcuts for common Python development workflows.
 
 Current capabilities include:
 
-* Python project detection
-* Virtual-environment detection
-* Conda-environment detection
-* Environment-aware terminals
-* IPython
-* Jupyter Notebook
-* JupyterLab
-* Streamlit execution
-* FastAPI execution
-* FastAPI documentation launcher
+- Python project detection
+- Virtual-environment detection
+- Conda-environment detection
+- Environment-aware terminals
+- IPython
+- Jupyter Notebook
+- JupyterLab
+- Streamlit execution
+- FastAPI execution
+- FastAPI documentation launcher
 
 ---
 
@@ -137,14 +137,14 @@ Common Git information and operations are available directly from Nautilus.
 
 Current actions include:
 
-* Show repository status
-* Show current branch
-* Show repository root
-* Show remote repository information
-* View Git log
-* Fetch
-* Pull
-* Push
+- Show repository status
+- Show current branch
+- Show repository root
+- Show remote repository information
+- View Git log
+- Fetch
+- Pull
+- Push
 
 Git actions appear only when an applicable repository is detected.
 
@@ -156,14 +156,14 @@ NDT provides project-aware Docker and Docker Compose actions.
 
 Current capabilities include:
 
-* Docker project detection
-* Docker Compose Up
-* Docker Compose Down
-* Docker Compose Restart
-* View logs
-* List containers
-* List images
-* Show Docker disk usage
+- Docker project detection
+- Docker Compose Up
+- Docker Compose Down
+- Docker Compose Restart
+- View logs
+- List containers
+- List images
+- Show Docker disk usage
 
 ---
 
@@ -173,17 +173,17 @@ NDT can integrate with locally hosted AI and document-processing services.
 
 Current integrations include:
 
-* Ollama
-* Dify
-* Open WebUI
-* BentoPDF
+- Ollama
+- Dify
+- Open WebUI
+- BentoPDF
 
 Additional utilities include:
 
-* List installed Ollama models
-* Build an Ollama model from a Modelfile
-* Show NVIDIA GPU information
-* Show CUDA information
+- List installed Ollama models
+- Build an Ollama model from a Modelfile
+- Show NVIDIA GPU information
+- Show CUDA information
 
 These integrations are optional.
 
@@ -197,15 +197,15 @@ Project-specific actions become available automatically when supported files or 
 
 Examples include:
 
-* Show detected project
-* Open project terminal
-* Activate project environment
-* Run Streamlit application
-* Run FastAPI application
-* Open FastAPI documentation
-* Start Docker Compose services
-* Stop Docker Compose services
-* Build Ollama model
+- Show detected project
+- Open project terminal
+- Activate project environment
+- Run Streamlit application
+- Run FastAPI application
+- Open FastAPI documentation
+- Start Docker Compose services
+- Stop Docker Compose services
+- Build Ollama model
 
 ---
 
@@ -215,28 +215,28 @@ The integrated Project Wizard generates starter projects and can perform common 
 
 ## Current Templates
 
-* Basic Python
-* Data Science
-* Streamlit
-* FastAPI
-* Docker Compose
-* Retrieval-Augmented Generation application
-* AI Agent application
-* Model Context Protocol server
+- Basic Python
+- Data Science
+- Streamlit
+- FastAPI
+- Docker Compose
+- Retrieval-Augmented Generation application
+- AI Agent application
+- Model Context Protocol server
 
 ## Optional Setup Actions
 
 Depending on the selected template, the wizard can:
 
-* Create the project directory
-* Generate starter files
-* Initialize Git
-* Create a Python virtual environment
-* Create a Conda environment
-* Install dependencies
-* Open the project in VSCodium
-* Launch the generated application
-* Open a browser after the application is ready
+- Create the project directory
+- Generate starter files
+- Initialize Git
+- Create a Python virtual environment
+- Create a Conda environment
+- Install dependencies
+- Open the project in VSCodium
+- Launch the generated application
+- Open a browser after the application is ready
 
 Generated projects are intended to remain understandable and editable rather than hiding their structure behind opaque automation.
 
@@ -272,17 +272,17 @@ The stable Version 1 extension is preserved as the project baseline while instal
 
 See the complete installation instructions:
 
-* [Installation Guide](docs/INSTALLATION.md)
-* [Quick Start](docs/QUICK_START.md)
-* [Configuration Guide](docs/CONFIGURATION.md)
-* [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
+- [Installation Guide](docs/INSTALLATION.md)
+- [Quick Start](docs/QUICK_START.md)
+- [Configuration Guide](docs/CONFIGURATION.md)
+- [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
 
 A typical source installation requires:
 
-* Linux with GNOME and Nautilus
-* Python 3.11 or later
-* `nautilus-python`
-* PyGObject and the applicable GNOME bindings
+- Linux with GNOME and Nautilus
+- Python 3.11 or later
+- `nautilus-python`
+- PyGObject and the applicable GNOME bindings
 
 After installing or updating a Nautilus Python extension, Nautilus may need to be restarted before the new context-menu items appear.
 
@@ -294,11 +294,11 @@ After installing or updating a Nautilus Python extension, Nautilus may need to b
 
 NDT is currently developed and tested primarily on:
 
-* Ubuntu 24.04 LTS
-* GNOME
-* Nautilus
-* Python 3.11+
-* `nautilus-python`
+- Ubuntu 24.04 LTS
+- GNOME
+- Nautilus
+- Python 3.11+
+- `nautilus-python`
 
 ## Additional Linux Distributions
 
@@ -306,15 +306,15 @@ Compatibility with additional GNOME-based Linux distributions is planned.
 
 Behavior may vary depending on:
 
-* Distribution packaging
-* Nautilus version
-* GNOME version
-* Python version
-* Terminal application
-* Installed editors
-* Docker installation
-* Conda installation
-* Availability of optional local services
+- Distribution packaging
+- Nautilus version
+- GNOME version
+- Python version
+- Terminal application
+- Installed editors
+- Docker installation
+- Conda installation
+- Availability of optional local services
 
 Compatibility reports and contributions are welcome.
 
@@ -326,30 +326,30 @@ Project documentation is maintained in the [`docs/`](docs/) directory.
 
 Available documentation includes:
 
-* [Installation](docs/INSTALLATION.md)
-* [Quick Start](docs/QUICK_START.md)
-* [User Guide](docs/USER_GUIDE.md)
-* [Configuration](docs/CONFIGURATION.md)
-* [Project Wizard](docs/PROJECT_WIZARD.md)
-* [Python Integration](docs/PYTHON.md)
-* [Git Integration](docs/GIT.md)
-* [Docker Integration](docs/DOCKER.md)
-* [AI Integration](docs/AI_INTEGRATION.md)
-* [Troubleshooting](docs/TROUBLESHOOTING.md)
-* [Frequently Asked Questions](docs/FAQ.md)
-* [Changelog Guide](docs/CHANGELOG_GUIDE.md)
+- [Installation](docs/INSTALLATION.md)
+- [Quick Start](docs/QUICK_START.md)
+- [User Guide](docs/USER_GUIDE.md)
+- [Configuration](docs/CONFIGURATION.md)
+- [Project Wizard](docs/PROJECT_WIZARD.md)
+- [Python Integration](docs/PYTHON.md)
+- [Git Integration](docs/GIT.md)
+- [Docker Integration](docs/DOCKER.md)
+- [AI Integration](docs/AI_INTEGRATION.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Frequently Asked Questions](docs/FAQ.md)
+- [Changelog Guide](docs/CHANGELOG_GUIDE.md)
 
 Additional project-level documents include:
 
-* [Architecture](ARCHITECTURE.md)
-* [Development Guidelines](DEVELOPMENT_GUIDELINES.md)
-* [Contributing Guidelines](CONTRIBUTING.md)
-* [Roadmap](ROADMAP.md)
-* [Changelog](CHANGELOG.md)
-* [Security Policy](SECURITY.md)
-* [Support Guide](SUPPORT.md)
-* [Code of Conduct](CODE_OF_CONDUCT.md)
-* [Current Project Context](PROJECT_CONTEXT.md)
+- [Architecture](ARCHITECTURE.md)
+- [Development Guidelines](DEVELOPMENT_GUIDELINES.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
+- [Roadmap](ROADMAP.md)
+- [Changelog](CHANGELOG.md)
+- [Security Policy](SECURITY.md)
+- [Support Guide](SUPPORT.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Current Project Context](PROJECT_CONTEXT.md)
 
 ---
 
@@ -427,40 +427,39 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the architectural direction.
 
 Version 1.0 is:
 
-* Stable
-* Frozen
-* Documented
-* Published
-* Preserved through a verified source snapshot
+- Stable
+- Frozen
+- Documented
+- Published
+- Preserved through a verified source snapshot
 
 ## Version 2 Development
 
-Version 2 modular refactoring is underway.
+**Version 2 utility-extraction phase complete.**
 
 Completed foundations include:
 
-* Modular Python package structure
-* Service-layer modules
-* Optional integration modules
-* Filesystem utility extraction
-* Path utility extraction
-* Pytest scaffolding
-* Initial unit tests
-* Ruff linting
-* Mypy type checking
-* Pre-commit repository checks
+- Modular Python package structure
+- Service-layer and optional integration namespaces
+- Focused reusable utility modules
+- Compatibility wrappers in `DeveloperContextMenu` where verified
+- Focused unit-test coverage for extracted utility responsibilities
+- Ruff linting, mypy type checking, pre-commit checks, and repository workflows
+- Documentation synchronization for the utility-extraction milestone
 
-The Version 2 implementation is not yet a stable release.
+Reusable non-UI logic now resides in focused utility modules, while `DeveloperContextMenu` remains the Nautilus integration, UI presentation, workflow coordination, notification, process, and menu-construction boundary.
 
-The original extension remains the functional baseline while responsibilities are extracted incrementally.
+The utility-extraction phase introduced no intended user-facing behavior change. The Version 2 implementation is not yet a stable release, and this milestone does not mark all Version 2 work as complete.
+
+The next step is integration review and merge preparation.
 
 ## Branch Model
 
 The repository uses:
 
-* `main` for stable, reviewed history
-* `develop` for integration
-* Focused feature branches for Version 2 development
+- `main` for stable, reviewed history
+- `develop` for integration
+- Focused feature branches for Version 2 development
 
 The `main` branch is protected.
 
@@ -470,18 +469,18 @@ The `main` branch is protected.
 
 The project follows these engineering standards:
 
-* Python 3.11+
-* PEP 8
-* Semantic Versioning
-* Type hints where practical
-* Single Responsibility Principle
-* Composition preferred over inheritance
-* Readability over cleverness
-* Backward compatibility wherever practical
-* Tests for extracted behavior
-* Small, focused commits
-* Local-first operation
-* Optional AI and cloud integrations
+- Python 3.11+
+- PEP 8
+- Semantic Versioning
+- Type hints where practical
+- Single Responsibility Principle
+- Composition preferred over inheritance
+- Readability over cleverness
+- Backward compatibility wherever practical
+- Tests for extracted behavior
+- Small, focused commits
+- Local-first operation
+- Optional AI and cloud integrations
 
 Current development checks include:
 
@@ -492,7 +491,7 @@ pytest
 pre-commit
 ```
 
-GitHub Actions and broader CI workflows are intentionally deferred until the modular architecture and local test foundation are sufficiently mature.
+Local quality checks and repository workflows support the current Version 2 development branch. Integration review and merge preparation remain the next controlled steps.
 
 ---
 
@@ -502,55 +501,55 @@ GitHub Actions and broader CI workflows are intentionally deferred until the mod
 
 Focus areas:
 
-* Stable baseline maintenance
-* Bug fixes
-* Documentation improvements
-* Compatibility testing
-* Installation improvements
-* Packaging preparation
-* Regression tests
+- Stable baseline maintenance
+- Bug fixes
+- Documentation improvements
+- Compatibility testing
+- Installation improvements
+- Packaging preparation
+- Regression tests
 
 ## Version 2.0 — Modular Architecture
 
 Goals include:
 
-* Modular package structure
-* Separation of menu and operational logic
-* Dedicated detector modules
-* Dedicated services
-* Reusable utilities
-* Configuration system
-* Expanded automated testing
-* Improved maintainability
-* Backward-compatible migration
+- Modular package structure
+- Separation of menu and operational logic
+- Dedicated detector modules
+- Dedicated services
+- Reusable utilities
+- Configuration system
+- Expanded automated testing
+- Improved maintainability
+- Backward-compatible migration
 
 ## Version 2.5 — Plugin Architecture
 
 Planned capabilities include:
 
-* Plugin discovery
-* Plugin registration
-* Contributor-facing plugin interfaces
-* Git plugin
-* Docker plugin
-* AWS plugin
-* Ollama plugin
-* Dify plugin
+- Plugin discovery
+- Plugin registration
+- Contributor-facing plugin interfaces
+- Git plugin
+- Docker plugin
+- AWS plugin
+- Ollama plugin
+- Dify plugin
 
 ## Version 3.x — AI-Assisted Development
 
 Planned capabilities include:
 
-* AI Project Generator
-* Repository Chat
-* Repository Explanation
-* AI Code Review
-* Test generation
-* Documentation generation
-* Log analysis
-* Traceback analysis
-* Assisted refactoring
-* Plugin SDK
+- AI Project Generator
+- Repository Chat
+- Repository Explanation
+- AI Code Review
+- Test generation
+- Documentation generation
+- Log analysis
+- Traceback analysis
+- Assisted refactoring
+- Plugin SDK
 
 AI capabilities will remain optional and will not be required for the core toolkit.
 
@@ -564,22 +563,22 @@ Contributions are welcome.
 
 Useful contribution areas include:
 
-* Bug fixes
-* Automated tests
-* Documentation
-* Linux-distribution compatibility
-* Project templates
-* Editor integrations
-* Developer-tool integrations
-* Accessibility improvements
-* Packaging
-* Future plugin development
+- Bug fixes
+- Automated tests
+- Documentation
+- Linux-distribution compatibility
+- Project templates
+- Editor integrations
+- Developer-tool integrations
+- Accessibility improvements
+- Packaging
+- Future plugin development
 
 Before contributing, read:
 
-* [CONTRIBUTING.md](CONTRIBUTING.md)
-* [DEVELOPMENT_GUIDELINES.md](DEVELOPMENT_GUIDELINES.md)
-* [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [DEVELOPMENT_GUIDELINES.md](DEVELOPMENT_GUIDELINES.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 
 Please use focused branches and keep changes limited to one coherent responsibility wherever practical.
 
@@ -591,17 +590,17 @@ Do not report security vulnerabilities through a public issue.
 
 Follow the process described in:
 
-* [SECURITY.md](SECURITY.md)
+- [SECURITY.md](SECURITY.md)
 
 Do not commit:
 
-* Passwords
-* API keys
-* Access tokens
-* Private keys
-* Personal configuration files
-* Local service credentials
-* Environment files containing secrets
+- Passwords
+- API keys
+- Access tokens
+- Private keys
+- Personal configuration files
+- Local service credentials
+- Environment files containing secrets
 
 ---
 
@@ -609,19 +608,19 @@ Do not commit:
 
 For installation help, known limitations, and troubleshooting guidance, see:
 
-* [SUPPORT.md](SUPPORT.md)
-* [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
-* [FAQ.md](docs/FAQ.md)
+- [SUPPORT.md](SUPPORT.md)
+- [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
+- [FAQ.md](docs/FAQ.md)
 
 When reporting a problem, include:
 
-* Linux distribution and version
-* GNOME version
-* Nautilus version
-* Python version
-* Installation method
-* Relevant logs or error messages
-* Steps needed to reproduce the issue
+- Linux distribution and version
+- GNOME version
+- Nautilus version
+- Python version
+- Installation method
+- Relevant logs or error messages
+- Steps needed to reproduce the issue
 
 Remove credentials and other sensitive information before sharing logs.
 
@@ -635,23 +634,23 @@ Nautilus Developer Toolkit is released under the [MIT License](LICENSE).
 
 # Project Status Summary
 
-| Area                       | Status                      |
-| -------------------------- | --------------------------- |
-| Version 1.0 implementation | Stable and frozen           |
-| Public GitHub repository   | Available                   |
-| Documentation foundation   | Complete                    |
-| MIT licensing              | Complete                    |
-| Version 1.0 tag            | Created                     |
-| Protected stable branch    | Configured                  |
-| Version 2 modularization   | In progress                 |
-| Utility extraction         | In progress                 |
-| Unit testing               | Initial foundation complete |
-| Local quality checks       | Configured                  |
-| Plugin architecture        | Planned                     |
-| Configuration system       | Planned                     |
-| Distribution packaging     | Planned                     |
-| GitHub Actions CI          | Deferred                    |
-| AI-assisted development    | Planned for Version 3       |
+| Area | Status |
+| --- | --- |
+| Version 1.0 implementation | Stable and frozen |
+| Public GitHub repository | Available |
+| Documentation foundation | Complete |
+| Utility-extraction milestone documentation | Complete |
+| Version 1.0 tag | Created |
+| Protected stable branch | Configured |
+| Version 2 modularization | In progress |
+| Utility-extraction phase | Complete |
+| Unit testing | Focused utility coverage established |
+| Local quality checks and repository workflows | Configured |
+| Integration review and merge preparation | Next |
+| Plugin architecture | Planned |
+| Configuration system | Planned |
+| Distribution packaging | Planned |
+| AI-assisted development | Planned for Version 3 |
 
 ---
 

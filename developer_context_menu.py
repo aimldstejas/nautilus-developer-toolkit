@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import json
-import os
 import shlex
 import shutil
 import subprocess
@@ -11,7 +9,57 @@ import gi
 
 gi.require_version("Nautilus", "4.0")
 
-from gi.repository import GObject, Nautilus
+from gi.repository import GObject, Nautilus  # noqa: E402
+
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    build_conda_shell_command as build_conda_command,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    convert_git_remote_to_web_url as remote_to_web_url,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    create_menu_item as build_menu_item,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    detect_project as identify_project,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    detect_project_root as find_project_root,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    docker_compose_available as is_docker_compose_available,
+)
+from nautilus_developer_toolkit.utils import find_command as find_system_command  # noqa: E402
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    find_compose_file as locate_compose_file,
+)
+from nautilus_developer_toolkit.utils import find_conda_executable as find_conda_path  # noqa: E402
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    get_conda_environments as list_conda_environments,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    get_git_remote_url as find_git_remote_url,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    get_git_root as find_git_root,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    get_local_path as resolve_local_path,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    launch_process as launch_detached_process,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    module_name_from_file,
+    write_new_file,
+)
+from nautilus_developer_toolkit.utils import notify as send_desktop_notification  # noqa: E402
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    project_report as build_project_report,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
+    read_conda_environment_name as read_environment_name_from_file,
+)
 
 
 class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
@@ -25,40 +73,19 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def get_local_path(file_info: Nautilus.FileInfo) -> str | None:
         """Return the local filesystem path for a Nautilus item."""
 
-        location = file_info.get_location()
-
-        if location is None:
-            return None
-
-        return location.get_path()
+        return resolve_local_path(file_info)
 
     @staticmethod
     def find_command(candidates: list[str]) -> str | None:
         """Return the first installed executable from a list."""
 
-        for candidate in candidates:
-            command = shutil.which(candidate)
-
-            if command:
-                return command
-
-        return None
+        return find_system_command(candidates)
 
     @staticmethod
     def notify(title: str, message: str) -> None:
         """Show a desktop notification when notify-send is installed."""
 
-        notify_send = shutil.which("notify-send")
-
-        if not notify_send:
-            return
-
-        subprocess.Popen(
-            [notify_send, title, message],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            start_new_session=True,
-        )
+        send_desktop_notification(title, message)
 
     def launch_process(
         self,
@@ -68,19 +95,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     ) -> None:
         """Launch an application safely."""
 
-        try:
-            subprocess.Popen(
-                command,
-                cwd=working_directory,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                start_new_session=True,
-            )
-        except Exception as error:
-            self.notify(
-                "Developer Context Menu",
-                f"Could not launch {application_name}: {error}",
-            )
+        return launch_detached_process(
+            command,
+            working_directory,
+            application_name,
+            notify_callback=self.notify,
+        )
 
     @staticmethod
     def create_menu_item(
@@ -91,11 +111,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     ) -> Nautilus.MenuItem:
         """Create one Nautilus menu item."""
 
-        return Nautilus.MenuItem(
-            name=name,
-            label=label,
-            tip=tip,
-            icon=icon,
+        return build_menu_item(
+            Nautilus.MenuItem,
+            name,
+            label,
+            tip,
+            icon,
         )
 
     def run_terminal_command(
@@ -199,73 +220,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def find_conda_executable() -> str | None:
         """Find Conda without relying only on Nautilus's PATH."""
 
-        candidates = [
-            os.environ.get("CONDA_EXE"),
-            str(Path.home() / "miniconda3" / "bin" / "conda"),
-            str(Path.home() / "anaconda3" / "bin" / "conda"),
-            str(Path.home() / "miniforge3" / "bin" / "conda"),
-            str(Path.home() / "mambaforge" / "bin" / "conda"),
-            "/opt/conda/bin/conda",
-            shutil.which("conda"),
-        ]
-
-        for candidate in candidates:
-            if candidate and Path(candidate).is_file():
-                return candidate
-
-        return None
+        return find_conda_path()
 
     def get_conda_environments(self) -> list[tuple[str, str]]:
         """Return Conda environments as name/path tuples."""
 
-        conda_executable = self.find_conda_executable()
-
-        if not conda_executable:
-            return []
-
-        try:
-            result = subprocess.run(
-                [conda_executable, "env", "list", "--json"],
-                capture_output=True,
-                text=True,
-                check=True,
-                timeout=15,
-            )
-
-            data = json.loads(result.stdout)
-            environment_paths = data.get("envs", [])
-
-            environments: list[tuple[str, str]] = []
-
-            for environment_path in environment_paths:
-                path = Path(environment_path)
-                name = path.name
-
-                if name in {
-                    "miniconda3",
-                    "anaconda3",
-                    "miniforge3",
-                    "mambaforge",
-                }:
-                    name = "base"
-
-                environments.append((name, str(path)))
-
-            environments.sort(
-                key=lambda item: (
-                    item[0] != "base",
-                    item[0].lower(),
-                )
-            )
-
-            return environments
-
-        except Exception as error:
-            self.notify(
-                "Conda environment error",
-                f"Could not read Conda environments: {error}",
-            )
-            return []
+        return list_conda_environments()
 
     def choose_conda_environment(self) -> str | None:
         """Display a graphical Conda environment selector."""
@@ -346,35 +306,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         if not conda_executable:
             raise RuntimeError("Conda executable was not found.")
 
-        conda_root = Path(conda_executable).parent.parent
-        conda_script = conda_root / "etc" / "profile.d" / "conda.sh"
-
-        quoted_folder = shlex.quote(folder_path)
-        quoted_environment = shlex.quote(environment_path)
-        quoted_conda_script = shlex.quote(str(conda_script))
-
-        command_parts = [
-            f"source {quoted_conda_script}",
-            f"conda activate {quoted_environment}",
-            f"cd {quoted_folder}",
-            'echo "Active Conda environment: $CONDA_DEFAULT_ENV"',
-            'echo "Working directory: $(pwd)"',
-        ]
-
-        if application_command:
-            quoted_message = shlex.quote(
-                f"{application_command} is not installed in this environment."
-            )
-
-            command_parts.append(
-                f"if command -v {application_command} >/dev/null 2>&1; "
-                f"then {application_command}; "
-                f"else echo {quoted_message}; echo; fi"
-            )
-
-        command_parts.append("exec bash")
-
-        return "; ".join(command_parts)
+        return build_conda_command(
+            conda_executable,
+            environment_path,
+            folder_path,
+            application_command,
+        )
 
     def open_conda_terminal(
         self,
@@ -445,104 +382,18 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def get_git_root(self, folder_path: str) -> str | None:
         """Return the repository root containing the selected folder."""
 
-        git = self.find_command(["git"])
-
-        if not git:
-            return None
-
-        try:
-            result = subprocess.run(
-                [
-                    git,
-                    "-C",
-                    folder_path,
-                    "rev-parse",
-                    "--show-toplevel",
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=10,
-            )
-
-            if result.returncode != 0:
-                return None
-
-            git_root = result.stdout.strip()
-
-            if not git_root:
-                return None
-
-            return git_root
-
-        except Exception:
-            return None
+        return find_git_root(folder_path)
 
     def get_git_remote_url(self, repository_path: str) -> str | None:
         """Return the origin remote URL for a Git repository."""
 
-        git = self.find_command(["git"])
-
-        if not git:
-            return None
-
-        try:
-            result = subprocess.run(
-                [
-                    git,
-                    "-C",
-                    repository_path,
-                    "remote",
-                    "get-url",
-                    "origin",
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=10,
-            )
-
-            if result.returncode != 0:
-                return None
-
-            remote_url = result.stdout.strip()
-
-            if not remote_url:
-                return None
-
-            return remote_url
-
-        except Exception:
-            return None
+        return find_git_remote_url(repository_path)
 
     @staticmethod
     def convert_git_remote_to_web_url(remote_url: str) -> str | None:
         """Convert common Git SSH remotes into browser URLs."""
 
-        remote_url = remote_url.strip()
-
-        if remote_url.startswith("git@"):
-            host_and_path = remote_url[4:]
-
-            if ":" not in host_and_path:
-                return None
-
-            host, repository_path = host_and_path.split(":", 1)
-            remote_url = f"https://{host}/{repository_path}"
-
-        elif remote_url.startswith("ssh://git@"):
-            remote_url = "https://" + remote_url[len("ssh://git@") :]
-
-        elif remote_url.startswith("git://"):
-            remote_url = "https://" + remote_url[len("git://") :]
-
-        elif not remote_url.startswith(("http://", "https://")):
-            return None
-
-        if remote_url.endswith(".git"):
-            remote_url = remote_url[:-4]
-
-        return remote_url
+        return remote_to_web_url(remote_url)
 
     # ================================================================
     # Docker helpers
@@ -552,42 +403,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def find_compose_file(folder_path: str) -> str | None:
         """Find a Docker Compose file in the selected folder."""
 
-        candidates = [
-            "compose.yml",
-            "compose.yaml",
-            "docker-compose.yml",
-            "docker-compose.yaml",
-        ]
-
-        for candidate in candidates:
-            compose_path = Path(folder_path) / candidate
-
-            if compose_path.is_file():
-                return str(compose_path)
-
-        return None
+        return locate_compose_file(folder_path)
 
     def docker_compose_available(self) -> bool:
         """Check whether the Docker Compose command is available."""
 
-        docker = self.find_command(["docker"])
-
-        if not docker:
-            return False
-
-        try:
-            result = subprocess.run(
-                [docker, "compose", "version"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=False,
-                timeout=10,
-            )
-
-            return result.returncode == 0
-
-        except Exception:
-            return False
+        return is_docker_compose_available()
 
     # ================================================================
     # Editor actions
@@ -1429,285 +1250,20 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     # Smart project detection and actions
     # ================================================================
 
-    @staticmethod
-    def search_upwards(
-        folder_path: str,
-        names: list[str],
-    ) -> Path | None:
-        """Search the selected folder and its parents for a marker."""
-
-        current = Path(folder_path).expanduser().resolve()
-
-        for directory in [current, *current.parents]:
-            for name in names:
-                candidate = directory / name
-
-                if candidate.exists():
-                    return candidate
-
-        return None
-
     def detect_project_root(self, folder_path: str) -> str:
         """Return the most likely project root."""
 
-        git_root = self.get_git_root(folder_path)
-
-        if git_root:
-            return git_root
-
-        markers = [
-            "pyproject.toml",
-            "requirements.txt",
-            "environment.yml",
-            "environment.yaml",
-            "Pipfile",
-            "poetry.lock",
-            "uv.lock",
-            "compose.yml",
-            "compose.yaml",
-            "docker-compose.yml",
-            "docker-compose.yaml",
-            "Dockerfile",
-            "Modelfile",
-            ".venv",
-            "venv",
-        ]
-
-        marker = self.search_upwards(folder_path, markers)
-
-        if marker:
-            return str(marker.parent)
-
-        return str(Path(folder_path).expanduser().resolve())
-
-    @staticmethod
-    def file_contains_any(path: Path, patterns: list[str]) -> bool:
-        """Return True when a text file contains any supplied pattern."""
-
-        try:
-            content = path.read_text(
-                encoding="utf-8",
-                errors="ignore",
-            ).lower()
-        except Exception:
-            return False
-
-        return any(pattern.lower() in content for pattern in patterns)
-
-    @staticmethod
-    def find_python_files(root: Path) -> list[Path]:
-        """Return likely Python entry files while skipping large folders."""
-
-        skipped_parts = {
-            ".git",
-            ".venv",
-            "venv",
-            "__pycache__",
-            "node_modules",
-            "site-packages",
-            "dist",
-            "build",
-        }
-
-        files: list[Path] = []
-
-        try:
-            for path in root.rglob("*.py"):
-                if any(part in skipped_parts for part in path.parts):
-                    continue
-
-                files.append(path)
-
-                if len(files) >= 300:
-                    break
-        except Exception:
-            pass
-
-        return files
+        return find_project_root(folder_path)
 
     def detect_project(self, folder_path: str) -> dict:
         """Inspect the selected folder and identify project capabilities."""
 
-        root = Path(self.detect_project_root(folder_path)).expanduser().resolve()
-
-        project = {
-            "root": str(root),
-            "git": self.get_git_root(str(root)) is not None,
-            "python": False,
-            "environment_file": None,
-            "local_environment": None,
-            "requirements": None,
-            "pyproject": None,
-            "jupyter": False,
-            "streamlit": False,
-            "streamlit_entry": None,
-            "fastapi": False,
-            "fastapi_entry": None,
-            "docker": False,
-            "compose_file": None,
-            "dockerfile": None,
-            "modelfile": None,
-        }
-
-        for name in ["environment.yml", "environment.yaml"]:
-            candidate = root / name
-
-            if candidate.is_file():
-                project["environment_file"] = str(candidate)
-                project["python"] = True
-                break
-
-        for name in [".venv", "venv"]:
-            candidate = root / name
-
-            if candidate.is_dir() and (candidate / "bin" / "python").is_file():
-                project["local_environment"] = str(candidate)
-                project["python"] = True
-                break
-
-        requirements = root / "requirements.txt"
-
-        if requirements.is_file():
-            project["requirements"] = str(requirements)
-            project["python"] = True
-
-        pyproject = root / "pyproject.toml"
-
-        if pyproject.is_file():
-            project["pyproject"] = str(pyproject)
-            project["python"] = True
-
-        compose_file = self.find_compose_file(str(root))
-
-        if compose_file:
-            project["compose_file"] = compose_file
-            project["docker"] = True
-
-        dockerfile = root / "Dockerfile"
-
-        if dockerfile.is_file():
-            project["dockerfile"] = str(dockerfile)
-            project["docker"] = True
-
-        modelfile = root / "Modelfile"
-
-        if modelfile.is_file():
-            project["modelfile"] = str(modelfile)
-
-        try:
-            project["jupyter"] = any(root.rglob("*.ipynb"))
-        except Exception:
-            project["jupyter"] = False
-
-        if project["jupyter"]:
-            project["python"] = True
-
-        python_files = self.find_python_files(root)
-
-        preferred_streamlit_names = [
-            "streamlit_app.py",
-            "app.py",
-            "main.py",
-        ]
-
-        ordered_streamlit_files = sorted(
-            python_files,
-            key=lambda path: (
-                path.name not in preferred_streamlit_names,
-                len(path.parts),
-                str(path),
-            ),
-        )
-
-        for python_file in ordered_streamlit_files:
-            if self.file_contains_any(
-                python_file,
-                [
-                    "import streamlit",
-                    "from streamlit",
-                    "st.set_page_config",
-                    "st.title(",
-                ],
-            ):
-                project["streamlit"] = True
-                project["streamlit_entry"] = str(python_file)
-                project["python"] = True
-                break
-
-        preferred_fastapi_paths = [
-            root / "api" / "main.py",
-            root / "app" / "main.py",
-            root / "main.py",
-            root / "src" / "main.py",
-        ]
-
-        ordered_fastapi_files = [path for path in preferred_fastapi_paths if path.is_file()]
-
-        ordered_fastapi_files.extend(
-            path for path in python_files if path not in ordered_fastapi_files
-        )
-
-        for python_file in ordered_fastapi_files:
-            if self.file_contains_any(
-                python_file,
-                [
-                    "from fastapi import",
-                    "import fastapi",
-                    "fastapi(",
-                ],
-            ):
-                project["fastapi"] = True
-                project["fastapi_entry"] = str(python_file)
-                project["python"] = True
-                break
-
-        return project
+        return identify_project(folder_path)
 
     def project_report(self, project: dict) -> str:
         """Build a readable project-detection report."""
 
-        yes_no = lambda value: "Yes" if value else "No"
-
-        lines = [
-            f"Project root: {project['root']}",
-            "",
-            "Detected capabilities",
-            f"Git repository: {yes_no(project['git'])}",
-            f"Python project: {yes_no(project['python'])}",
-            f"Jupyter notebooks: {yes_no(project['jupyter'])}",
-            f"Streamlit application: {yes_no(project['streamlit'])}",
-            f"FastAPI application: {yes_no(project['fastapi'])}",
-            f"Docker project: {yes_no(project['docker'])}",
-            f"Ollama Modelfile: {yes_no(project['modelfile'])}",
-            "",
-            "Detected details",
-        ]
-
-        details = [
-            ("Environment file", "environment_file"),
-            ("Local environment", "local_environment"),
-            ("Requirements", "requirements"),
-            ("pyproject.toml", "pyproject"),
-            ("Streamlit entry", "streamlit_entry"),
-            ("FastAPI entry", "fastapi_entry"),
-            ("Compose file", "compose_file"),
-            ("Dockerfile", "dockerfile"),
-            ("Modelfile", "modelfile"),
-        ]
-
-        found = False
-
-        for label, key in details:
-            value = project.get(key)
-
-            if value:
-                lines.append(f"{label}: {value}")
-                found = True
-
-        if not found:
-            lines.append("No recognized project files were found.")
-
-        return "\n".join(lines)
+        return build_project_report(project)
 
     def show_detected_project(
         self,
@@ -1894,17 +1450,6 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             "Streamlit Application",
         )
 
-    @staticmethod
-    def module_name_from_file(
-        project_root: str,
-        entry_file: str,
-    ) -> str:
-        """Convert a Python path into an importable module name."""
-
-        relative = Path(entry_file).relative_to(Path(project_root)).with_suffix("")
-
-        return ".".join(relative.parts)
-
     def run_detected_fastapi(
         self,
         menu_item: Nautilus.MenuItem,
@@ -1922,7 +1467,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
             return
 
-        module_name = self.module_name_from_file(
+        module_name = module_name_from_file(
             project["root"],
             entry,
         )
@@ -2039,17 +1584,6 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     # New project wizard
     # ================================================================
 
-    @staticmethod
-    def write_new_file(path: Path, content: str) -> None:
-        """Create a file without overwriting an existing file."""
-
-        path.parent.mkdir(parents=True, exist_ok=True)
-
-        if path.exists():
-            raise FileExistsError(f"Refusing to overwrite existing file: {path}")
-
-        path.write_text(content, encoding="utf-8")
-
     def create_project_template(
         self,
         parent_folder: str,
@@ -2091,22 +1625,22 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
         title = project_name.replace("_", " ").replace("-", " ").title()
 
-        self.write_new_file(project_root / ".gitignore", gitignore)
+        write_new_file(project_root / ".gitignore", gitignore)
 
         if template_name == "Basic Python":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nPython project.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "src" / package_name / "__init__.py",
                 "",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "src" / package_name / "main.py",
                 (
                     "def main() -> None:\n"
@@ -2116,17 +1650,17 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                     "    main()\n"
                 ),
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "tests" / "test_smoke.py",
                 "def test_smoke() -> None:\n    assert True\n",
             )
 
         elif template_name == "Data Science":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nData-science project.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "environment.yml",
                 (
                     f"name: {package_name}\n"
@@ -2153,21 +1687,21 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 "reports/figures",
                 "tests",
             ]:
-                self.write_new_file(
+                write_new_file(
                     project_root / directory_name / ".gitkeep",
                     "",
                 )
 
         elif template_name == "Streamlit":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nStreamlit application.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "streamlit\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "app.py",
                 (
                     "import streamlit as st\n\n\n"
@@ -2179,25 +1713,25 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                     'st.write("Project is ready.")\n'
                 ),
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / ".streamlit" / "config.toml",
                 "[server]\nheadless = true\n",
             )
 
         elif template_name == "FastAPI":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nFastAPI application.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "fastapi\nuvicorn[standard]\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "app" / "__init__.py",
                 "",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "app" / "main.py",
                 (
                     "from fastapi import FastAPI\n\n\n"
@@ -2210,15 +1744,15 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
 
         elif template_name == "Docker Compose":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nDocker Compose project.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "compose.yml",
                 ('services:\n  app:\n    build: .\n    ports:\n      - "8000:8000"\n'),
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "Dockerfile",
                 (
                     "FROM python:3.11-slim\n\n"
@@ -2229,21 +1763,21 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                     'CMD ["python", "app.py"]\n'
                 ),
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "app.py",
                 'print("Docker project is ready.")\n',
             )
 
         elif template_name == "RAG Application":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nLocal retrieval-augmented generation project.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 ("langchain\nlangchain-community\nchromadb\npypdf\nollama\n"),
             )
@@ -2255,12 +1789,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 "tests",
                 "config",
             ]:
-                self.write_new_file(
+                write_new_file(
                     project_root / directory_name / ".gitkeep",
                     "",
                 )
 
-            self.write_new_file(
+            write_new_file(
                 project_root / "src" / "main.py",
                 (
                     "def main() -> None:\n"
@@ -2272,11 +1806,11 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
 
         elif template_name == "Agent Application":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nAgentic AI application.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "pydantic\nhttpx\nollama\n",
             )
@@ -2288,12 +1822,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 "tests",
                 "config",
             ]:
-                self.write_new_file(
+                write_new_file(
                     project_root / directory_name / ".gitkeep",
                     "",
                 )
 
-            self.write_new_file(
+            write_new_file(
                 project_root / "src" / "main.py",
                 (
                     "def main() -> None:\n"
@@ -2305,15 +1839,15 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
 
         elif template_name == "MCP Server":
-            self.write_new_file(
+            write_new_file(
                 project_root / "README.md",
                 f"# {title}\n\nModel Context Protocol server.\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "requirements.txt",
                 "mcp\n",
             )
-            self.write_new_file(
+            write_new_file(
                 project_root / "server.py",
                 (
                     "from mcp.server.fastmcp import FastMCP\n\n\n"
@@ -2482,22 +2016,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     ) -> str | None:
         """Read the environment name from environment.yml."""
 
-        try:
-            for line in environment_file.read_text(
-                encoding="utf-8",
-                errors="ignore",
-            ).splitlines():
-                stripped = line.strip()
-
-                if stripped.startswith("name:"):
-                    value = stripped.split(":", 1)[1].strip()
-
-                    if value:
-                        return value
-        except Exception:
-            return None
-
-        return None
+        return read_environment_name_from_file(environment_file)
 
     def create_project_environment(
         self,

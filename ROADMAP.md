@@ -49,13 +49,27 @@ Planned work:
 
 Architectural redesign.
 
-Major objectives:
+Completed:
 
-- Modular codebase
+- Version 2 utility-extraction phase complete
+- Reusable utility modularization under `src/nautilus_developer_toolkit/utils/`
+- Compatibility-wrapper preservation in `DeveloperContextMenu` where verified
+- Focused utility-test expansion
+- Utility-extraction consolidation review
+- Documentation synchronization for the completed utility-extraction milestone
+
+Next:
+
+- Integration review and merge preparation for the utility-extraction branch
+
+Pending work:
+
 - Configuration system
-- Cleaner APIs
-- Improved maintainability
+- Cleaner APIs beyond the completed utility-extraction scope
+- Service and orchestration architecture review
+- UI-bound workflow evolution
 - Production-grade project templates
+- Packaging, release, and compatibility work
 
 ---
 

@@ -1,0 +1,25 @@
+# Graphify local/generated output
+graphify-out/cache/
+graphify-out/cost.json
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+
+# Build and packaging outputs
+build/
+dist/
+*.egg-info/
+
+# Local editor/system files
+.vscode/
+.idea/
