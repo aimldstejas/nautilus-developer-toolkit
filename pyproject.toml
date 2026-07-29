@@ -14,10 +14,6 @@ authors = [
     { name = "Nautilus Developer Toolkit Contributors" }
 ]
 
-files = [
-	 "src/nautilus_developer_toolkit"
-]
-
 keywords = [
     "nautilus",
     "gnome",
