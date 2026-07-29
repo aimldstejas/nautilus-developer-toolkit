@@ -1,34 +1,153 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=75", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "nautilus-developer-toolkit"
-version = "1.0.0"
-description = "Developer productivity toolkit for Nautilus."
+version = "2.0.0.dev0"
+description = "A modular developer productivity toolkit for GNOME Files (Nautilus)."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
+
 authors = [
-    { name = "YOUR NAME" }
+    { name = "Nautilus Developer Toolkit Contributors" }
 ]
 
 keywords = [
     "nautilus",
-    "python",
+    "gnome",
+    "ubuntu",
     "linux",
+    "python",
+    "developer-tools",
+    "context-menu",
     "docker",
     "git",
-    "developer-tools",
-    "ai"
+    "ai",
+    "ollama",
+    "dify"
 ]
 
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Environment :: X11 Applications",
+    "Development Status :: 3 - Alpha",
+    "Environment :: X11 Applications :: Gnome",
+    "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
-    "Topic :: Software Development"
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Utilities"
+]
+
+[project.urls]
+Homepage = "https://github.com/aimldstejas/nautilus-developer-toolkit"
+Repository = "https://github.com/aimldstejas/nautilus-developer-toolkit"
+Issues = "https://github.com/aimldstejas/nautilus-developer-toolkit/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src"
+]
+
+testpaths = [
+    "tests"
+]
+
+addopts = [
+    "-ra",
+    "--strict-config",
+    "--strict-markers"
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = [
+    "src",
+    "tests"
+]
+
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "build",
+    "dist"
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM"
+]
+
+ignore = [
+    "E501"
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101"
+]
+
+[tool.black]
+line-length = 100
+target-version = [
+    "py311"
+]
+
+[tool.mypy]
+python_version = "3.11"
+files = [
+    "src/nautilus_developer_toolkit"
+]
+
+strict = true
+pretty = true
+show_error_codes = true
+warn_unused_configs = true
+
+exclude = [
+    "^build/",
+    "^dist/"
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "gi",
+    "gi.*"
+]
+
+ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = true
+source = [
+    "nautilus_developer_toolkit"
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 0
+
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:"
 ]

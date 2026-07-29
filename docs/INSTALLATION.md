@@ -5,31 +5,37 @@
 - Linux
 - Python 3.11 or newer
 - Nautilus
-- nautilus-python
+- `python3-nautilus`
 
 ## Clone the repository
 
 ```bash
-git clone https://github.com/<username>/nautilus-developer-toolkit.git
+git clone https://github.com/aimldstejas/nautilus-developer-toolkit.git
 cd nautilus-developer-toolkit
 ```
 
-## Install dependencies
+## Install the modular package for Nautilus
+
+Nautilus loads Python extensions through its system Python runtime, not through the active Conda environment. Install the modular package into the system Python user site before deploying the extension.
+
+On this Ubuntu setup, use `/usr/bin/python3`, not bare `python3`.
 
 ```bash
-pip install -r requirements.txt
+/usr/bin/python3 -m pip install --user --break-system-packages .
 ```
 
-## Install the extension
+Do not use `pip install -r requirements.txt` when `requirements.txt` is absent.
 
-Copy the extension to the Nautilus extensions directory:
+## Install the extension entrypoint
+
+The repository-root `developer_context_menu.py` file is the active Nautilus extension entrypoint. Do not use the obsolete `src/extension.py` path.
 
 ```bash
-mkdir -p ~/.local/share/nautilus-python/extensions
-cp src/extension.py ~/.local/share/nautilus-python/extensions/
+install -Dm 0644 developer_context_menu.py \
+  "$HOME/.local/share/nautilus-python/extensions/developer_context_menu.py"
 ```
 
-Restart Nautilus:
+## Restart Nautilus
 
 ```bash
 nautilus -q
