@@ -4,6 +4,15 @@ All notable changes to Nautilus Developer Toolkit (NDT) will be documented in th
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+# Unreleased
+
+## Changed
+
+- **Version 2 utility-extraction phase complete.** Reusable non-UI logic was moved into focused modules under `src/nautilus_developer_toolkit/utils/` through a controlled extraction sequence.
+- Compatibility wrappers remain in `DeveloperContextMenu` to preserve verified existing call sites and class-level behavior.
+- Focused unit-test coverage was expanded for extracted utility responsibilities, with a final validated baseline of `96` passing unit tests.
+- This phase introduced no intended user-facing behavior change and continues the separation of reusable logic from Nautilus UI orchestration.
+
 ---
 
 # [1.0.0] - Initial Stable Release

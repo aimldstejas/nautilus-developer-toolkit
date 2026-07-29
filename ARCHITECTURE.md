@@ -4,77 +4,41 @@ This document describes the architectural design of Nautilus Developer Toolkit (
 
 ---
 
-# Current Architecture (Version 1.x)
+# Current Architecture (Version 2 Development)
 
-Version 1.x consists primarily of a single Nautilus extension.
+Version 1.0.0 remains the frozen baseline. Version 2 development now includes a focused reusable utility layer while `developer_context_menu.py` continues to provide the Nautilus extension entry point.
 
+## Nautilus Integration and Orchestration
+
+`DeveloperContextMenu` primarily handles Nautilus integration, menu construction, UI presentation, notifications, terminal and process workflows, and project-action coordination.
+
+Thin compatibility wrappers remain for extracted utilities where they preserve existing class-level behavior and verified call sites. These wrappers keep `DeveloperContextMenu` as the integration boundary without duplicating reusable implementation logic.
+
+The remaining substantial class methods are predominantly orchestration or UI-bound. Further extraction is not automatically beneficial when it would fragment coordinated workflows.
+
+## Reusable Utility Layer
+
+Reusable non-UI logic resides under `src/nautilus_developer_toolkit/utils/`.
+
+```text
+utils/
+    command_utils.py
+    conda_utils.py
+    docker_utils.py
+    filesystem.py
+    git_utils.py
+    menu_utils.py
+    notification_utils.py
+    paths.py
+    process_utils.py
+    project_utils.py
 ```
-developer_context_menu.py
-```
 
-This architecture was appropriate during rapid feature development but has reached the practical limit for maintainability.
+The utility layer contains focused responsibilities for command discovery, Conda operations, Docker Compose detection, filesystem helpers, Git helpers, menu-item construction, notifications, path conversion, process launching, and project detection.
 
-Version 2 will replace this with a modular architecture.
+`project_utils.py` contains project-root detection, project detection, and project-report formatting.
 
----
-
-# Version 2 Target Architecture
-
-```
-nautilus-developer-toolkit/
-
-src/
-
-    extension.py
-
-    menus/
-        editors.py
-        python.py
-        git.py
-        docker.py
-        ai.py
-        projects.py
-        wizard.py
-
-    detectors/
-        project_detector.py
-        git_detector.py
-        python_detector.py
-        docker_detector.py
-        framework_detector.py
-
-    plugins/
-        docker/
-        git/
-        ollama/
-        dify/
-        kubernetes/
-        aws/
-
-    templates/
-        python/
-        streamlit/
-        fastapi/
-        docker/
-        rag/
-        agent/
-
-    utils/
-        dialogs.py
-        filesystem.py
-        browser.py
-        terminal.py
-        subprocesses.py
-        config.py
-
-tests/
-
-docs/
-
-assets/
-
-scripts/
-```
+Utility modules avoid direct Nautilus, Gtk, and GObject dependencies. The exceptions are deliberate boundary patterns where a utility accepts an injected factory or callback, such as menu-item construction or process-launch notification handling.
 
 ---
 

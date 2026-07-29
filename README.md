@@ -347,3 +347,11 @@ This project is planned to be released under the MIT License.
 The Version 1.0 source has been frozen before architectural refactoring begins.
 
 Future development will preserve a stable release while Version 2.x and Version 3.x evolve independently.
+
+## Version 2 Development Status
+
+**Version 2 utility-extraction phase complete.**
+
+Reusable non-UI logic now resides in focused utility modules, while compatibility wrappers remain in `DeveloperContextMenu` to preserve verified existing call sites and public behavior.
+
+Current work is documentation synchronization followed by integration review. This milestone does not mark all Version 2 work as complete.
