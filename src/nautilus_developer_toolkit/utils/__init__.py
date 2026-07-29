@@ -19,7 +19,7 @@ from .menu_utils import create_menu_item
 from .notification_utils import notify
 from .paths import get_local_path, module_name_from_file
 from .process_utils import launch_process
-from .project_utils import detect_project, detect_project_root
+from .project_utils import detect_project, detect_project_root, project_report
 
 __all__ = [
     "build_conda_shell_command",
@@ -41,6 +41,7 @@ __all__ = [
     "notify",
     "detect_project",
     "detect_project_root",
+    "project_report",
     "search_upwards",
     "write_new_file",
 ]

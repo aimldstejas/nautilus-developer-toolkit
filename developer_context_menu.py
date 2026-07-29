@@ -55,6 +55,9 @@ from nautilus_developer_toolkit.utils import (  # noqa: E402
 )
 from nautilus_developer_toolkit.utils import notify as send_desktop_notification  # noqa: E402
 from nautilus_developer_toolkit.utils import (  # noqa: E402
+    project_report as build_project_report,
+)
+from nautilus_developer_toolkit.utils import (  # noqa: E402
     read_conda_environment_name as read_environment_name_from_file,
 )
 
@@ -1260,49 +1263,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def project_report(self, project: dict) -> str:
         """Build a readable project-detection report."""
 
-        def yes_no(value: object) -> str:
-            return "Yes" if value else "No"
-
-        lines = [
-            f"Project root: {project['root']}",
-            "",
-            "Detected capabilities",
-            f"Git repository: {yes_no(project['git'])}",
-            f"Python project: {yes_no(project['python'])}",
-            f"Jupyter notebooks: {yes_no(project['jupyter'])}",
-            f"Streamlit application: {yes_no(project['streamlit'])}",
-            f"FastAPI application: {yes_no(project['fastapi'])}",
-            f"Docker project: {yes_no(project['docker'])}",
-            f"Ollama Modelfile: {yes_no(project['modelfile'])}",
-            "",
-            "Detected details",
-        ]
-
-        details = [
-            ("Environment file", "environment_file"),
-            ("Local environment", "local_environment"),
-            ("Requirements", "requirements"),
-            ("pyproject.toml", "pyproject"),
-            ("Streamlit entry", "streamlit_entry"),
-            ("FastAPI entry", "fastapi_entry"),
-            ("Compose file", "compose_file"),
-            ("Dockerfile", "dockerfile"),
-            ("Modelfile", "modelfile"),
-        ]
-
-        found = False
-
-        for label, key in details:
-            value = project.get(key)
-
-            if value:
-                lines.append(f"{label}: {value}")
-                found = True
-
-        if not found:
-            lines.append("No recognized project files were found.")
-
-        return "\n".join(lines)
+        return build_project_report(project)
 
     def show_detected_project(
         self,

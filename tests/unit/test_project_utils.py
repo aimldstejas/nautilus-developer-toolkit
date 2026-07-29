@@ -11,6 +11,7 @@ import pytest
 from nautilus_developer_toolkit.utils.project_utils import (
     detect_project,
     detect_project_root,
+    project_report,
 )
 
 
@@ -514,3 +515,137 @@ def test_detect_project_wrapper_forwards_original_argument(monkeypatch: pytest.M
         is expected_project
     )
     assert received == ["relative/project"]
+
+
+def test_project_report_preserves_complete_exact_output() -> None:
+    project = {
+        "root": "/projects/example",
+        "git": True,
+        "python": True,
+        "jupyter": True,
+        "streamlit": True,
+        "fastapi": True,
+        "docker": True,
+        "modelfile": "/projects/example/Modelfile",
+        "environment_file": "/projects/example/environment.yml",
+        "local_environment": "/projects/example/.venv",
+        "requirements": "/projects/example/requirements.txt",
+        "pyproject": "/projects/example/pyproject.toml",
+        "streamlit_entry": "/projects/example/app.py",
+        "fastapi_entry": "/projects/example/api/main.py",
+        "compose_file": "/projects/example/compose.yml",
+        "dockerfile": "/projects/example/Dockerfile",
+    }
+
+    assert project_report(project) == (
+        "Project root: /projects/example\n"
+        "\n"
+        "Detected capabilities\n"
+        "Git repository: Yes\n"
+        "Python project: Yes\n"
+        "Jupyter notebooks: Yes\n"
+        "Streamlit application: Yes\n"
+        "FastAPI application: Yes\n"
+        "Docker project: Yes\n"
+        "Ollama Modelfile: Yes\n"
+        "\n"
+        "Detected details\n"
+        "Environment file: /projects/example/environment.yml\n"
+        "Local environment: /projects/example/.venv\n"
+        "Requirements: /projects/example/requirements.txt\n"
+        "pyproject.toml: /projects/example/pyproject.toml\n"
+        "Streamlit entry: /projects/example/app.py\n"
+        "FastAPI entry: /projects/example/api/main.py\n"
+        "Compose file: /projects/example/compose.yml\n"
+        "Dockerfile: /projects/example/Dockerfile\n"
+        "Modelfile: /projects/example/Modelfile"
+    )
+
+
+def test_project_report_omits_falsey_details_and_preserves_default_output() -> None:
+    project = {
+        "root": "/projects/example",
+        "git": False,
+        "python": False,
+        "jupyter": False,
+        "streamlit": False,
+        "fastapi": False,
+        "docker": False,
+        "modelfile": None,
+        "environment_file": "",
+        "local_environment": None,
+        "requirements": False,
+        "pyproject": 0,
+        "streamlit_entry": [],
+        "fastapi_entry": {},
+        "compose_file": (),
+        "dockerfile": None,
+    }
+
+    report = project_report(project)
+
+    assert report == (
+        "Project root: /projects/example\n"
+        "\n"
+        "Detected capabilities\n"
+        "Git repository: No\n"
+        "Python project: No\n"
+        "Jupyter notebooks: No\n"
+        "Streamlit application: No\n"
+        "FastAPI application: No\n"
+        "Docker project: No\n"
+        "Ollama Modelfile: No\n"
+        "\n"
+        "Detected details\n"
+        "No recognized project files were found."
+    )
+    assert not report.endswith("\n")
+
+
+def test_project_report_wrapper_forwards_original_argument(monkeypatch: pytest.MonkeyPatch) -> None:
+    gi_module: Any = ModuleType("gi")
+
+    def require_version(namespace: str, version: str) -> None:
+        return None
+
+    gi_module.require_version = require_version
+    repository_module: Any = ModuleType("gi.repository")
+
+    class FakeGObject:
+        class GObject:
+            pass
+
+    class FakeNautilus:
+        class FileInfo:
+            pass
+
+        class Menu:
+            pass
+
+        class MenuProvider:
+            pass
+
+        class MenuItem:
+            pass
+
+    repository_module.GObject = FakeGObject
+    repository_module.Nautilus = FakeNautilus
+    monkeypatch.setitem(sys.modules, "gi", gi_module)
+    monkeypatch.setitem(sys.modules, "gi.repository", repository_module)
+    monkeypatch.delitem(sys.modules, "developer_context_menu", raising=False)
+    context_menu_module = importlib.import_module("developer_context_menu")
+
+    expected_project = {"root": "/delegated/root"}
+    received: list[dict[str, object]] = []
+
+    def fake_project_report(project: dict[str, object]) -> str:
+        received.append(project)
+        return "delegated report"
+
+    monkeypatch.setattr(context_menu_module, "build_project_report", fake_project_report)
+
+    assert (
+        context_menu_module.DeveloperContextMenu().project_report(expected_project)
+        == "delegated report"
+    )
+    assert received == [expected_project]
