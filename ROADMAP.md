@@ -56,9 +56,6 @@ Completed:
 - Compatibility-wrapper preservation in `DeveloperContextMenu` where verified
 - Focused utility-test expansion
 - Utility-extraction consolidation review
-
-In progress:
-
 - Documentation synchronization for the completed utility-extraction milestone
 
 Next:
