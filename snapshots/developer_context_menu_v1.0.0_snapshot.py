@@ -6,6 +6,7 @@ import shlex
 import shutil
 import subprocess
 from pathlib import Path
+from typing import List, Optional, Tuple
 
 import gi
 
@@ -22,7 +23,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     # ================================================================
 
     @staticmethod
-    def get_local_path(file_info: Nautilus.FileInfo) -> str | None:
+    def get_local_path(file_info: Nautilus.FileInfo) -> Optional[str]:
         """Return the local filesystem path for a Nautilus item."""
 
         location = file_info.get_location()
@@ -33,7 +34,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         return location.get_path()
 
     @staticmethod
-    def find_command(candidates: list[str]) -> str | None:
+    def find_command(candidates: List[str]) -> Optional[str]:
         """Return the first installed executable from a list."""
 
         for candidate in candidates:
@@ -62,7 +63,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
     def launch_process(
         self,
-        command: list[str],
+        command: List[str],
         working_directory: str,
         application_name: str,
     ) -> None:
@@ -196,7 +197,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     # ================================================================
 
     @staticmethod
-    def find_conda_executable() -> str | None:
+    def find_conda_executable() -> Optional[str]:
         """Find Conda without relying only on Nautilus's PATH."""
 
         candidates = [
@@ -215,7 +216,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
         return None
 
-    def get_conda_environments(self) -> list[tuple[str, str]]:
+    def get_conda_environments(self) -> List[Tuple[str, str]]:
         """Return Conda environments as name/path tuples."""
 
         conda_executable = self.find_conda_executable()
@@ -235,7 +236,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             data = json.loads(result.stdout)
             environment_paths = data.get("envs", [])
 
-            environments: list[tuple[str, str]] = []
+            environments: List[Tuple[str, str]] = []
 
             for environment_path in environment_paths:
                 path = Path(environment_path)
@@ -267,7 +268,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
             return []
 
-    def choose_conda_environment(self) -> str | None:
+    def choose_conda_environment(self) -> Optional[str]:
         """Display a graphical Conda environment selector."""
 
         environments = self.get_conda_environments()
@@ -337,7 +338,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         self,
         environment_path: str,
         folder_path: str,
-        application_command: str | None = None,
+        application_command: Optional[str] = None,
     ) -> str:
         """Build a shell command that activates a Conda environment."""
 
@@ -380,7 +381,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         self,
         environment_path: str,
         folder_path: str,
-        application_command: str | None = None,
+        application_command: Optional[str] = None,
     ) -> None:
         """Open GNOME Terminal with a selected Conda environment."""
 
@@ -423,7 +424,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def select_and_launch_conda_tool(
         self,
         folder_path: str,
-        application_command: str | None = None,
+        application_command: Optional[str] = None,
     ) -> None:
         """Choose an environment and launch a Conda-aware command."""
 
@@ -442,7 +443,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     # Git helpers
     # ================================================================
 
-    def get_git_root(self, folder_path: str) -> str | None:
+    def get_git_root(self, folder_path: str) -> Optional[str]:
         """Return the repository root containing the selected folder."""
 
         git = self.find_command(["git"])
@@ -478,7 +479,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         except Exception:
             return None
 
-    def get_git_remote_url(self, repository_path: str) -> str | None:
+    def get_git_remote_url(self, repository_path: str) -> Optional[str]:
         """Return the origin remote URL for a Git repository."""
 
         git = self.find_command(["git"])
@@ -516,7 +517,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             return None
 
     @staticmethod
-    def convert_git_remote_to_web_url(remote_url: str) -> str | None:
+    def convert_git_remote_to_web_url(remote_url: str) -> Optional[str]:
         """Convert common Git SSH remotes into browser URLs."""
 
         remote_url = remote_url.strip()
@@ -531,10 +532,10 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             remote_url = f"https://{host}/{repository_path}"
 
         elif remote_url.startswith("ssh://git@"):
-            remote_url = "https://" + remote_url[len("ssh://git@") :]
+            remote_url = "https://" + remote_url[len("ssh://git@"):]
 
         elif remote_url.startswith("git://"):
-            remote_url = "https://" + remote_url[len("git://") :]
+            remote_url = "https://" + remote_url[len("git://"):]
 
         elif not remote_url.startswith(("http://", "https://")):
             return None
@@ -549,7 +550,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     # ================================================================
 
     @staticmethod
-    def find_compose_file(folder_path: str) -> str | None:
+    def find_compose_file(folder_path: str) -> Optional[str]:
         """Find a Docker Compose file in the selected folder."""
 
         candidates = [
@@ -842,7 +843,10 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
         self.run_terminal_command(
             folder_path=repository_path,
-            command=("git --no-pager log --graph --decorate --oneline --all -n 30"),
+            command=(
+                "git --no-pager log "
+                "--graph --decorate --oneline --all -n 30"
+            ),
             title="Git Log",
         )
 
@@ -1039,7 +1043,10 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
         self.run_terminal_command(
             folder_path=folder_path,
-            command=("docker compose up -d && echo && docker compose ps"),
+            command=(
+                "docker compose up -d && "
+                "echo && docker compose ps"
+            ),
             title="Docker Compose Up",
         )
 
@@ -1079,7 +1086,10 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
         self.run_terminal_command(
             folder_path=folder_path,
-            command=("docker compose restart && echo && docker compose ps"),
+            command=(
+                "docker compose restart && "
+                "echo && docker compose ps"
+            ),
             title="Docker Compose Restart",
         )
 
@@ -1271,13 +1281,13 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             "echo; "
             'echo "================ PYTORCH CUDA ============================"; '
             "python3 -c "
-            '"import torch; '
+            "\"import torch; "
             "print('PyTorch:', torch.__version__); "
             "print('CUDA available:', torch.cuda.is_available()); "
             "print('PyTorch CUDA build:', torch.version.cuda); "
             "print('GPU count:', torch.cuda.device_count()); "
             "[print(f'GPU {i}: {torch.cuda.get_device_name(i)}') "
-            'for i in range(torch.cuda.device_count())]" '
+            "for i in range(torch.cuda.device_count())]\" "
             "2>/dev/null || "
             'echo "PyTorch is not installed in the system Python environment."'
         )
@@ -1401,10 +1411,16 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 return
 
             allowed_characters = set(
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-/:"
+                "abcdefghijklmnopqrstuvwxyz"
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                "0123456789"
+                "._-/:"
             )
 
-            if any(character not in allowed_characters for character in model_name):
+            if any(
+                character not in allowed_characters
+                for character in model_name
+            ):
                 self.notify(
                     "Invalid model name",
                     "The model name contains unsupported characters.",
@@ -1425,6 +1441,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 str(error),
             )
 
+
     # ================================================================
     # Smart project detection and actions
     # ================================================================
@@ -1432,8 +1449,8 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     @staticmethod
     def search_upwards(
         folder_path: str,
-        names: list[str],
-    ) -> Path | None:
+        names: List[str],
+    ) -> Optional[Path]:
         """Search the selected folder and its parents for a marker."""
 
         current = Path(folder_path).expanduser().resolve()
@@ -1481,7 +1498,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         return str(Path(folder_path).expanduser().resolve())
 
     @staticmethod
-    def file_contains_any(path: Path, patterns: list[str]) -> bool:
+    def file_contains_any(path: Path, patterns: List[str]) -> bool:
         """Return True when a text file contains any supplied pattern."""
 
         try:
@@ -1495,7 +1512,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         return any(pattern.lower() in content for pattern in patterns)
 
     @staticmethod
-    def find_python_files(root: Path) -> list[Path]:
+    def find_python_files(root: Path) -> List[Path]:
         """Return likely Python entry files while skipping large folders."""
 
         skipped_parts = {
@@ -1509,7 +1526,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             "build",
         }
 
-        files: list[Path] = []
+        files: List[Path] = []
 
         try:
             for path in root.rglob("*.py"):
@@ -1528,7 +1545,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def detect_project(self, folder_path: str) -> dict:
         """Inspect the selected folder and identify project capabilities."""
 
-        root = Path(self.detect_project_root(folder_path)).expanduser().resolve()
+        root = Path(
+            self.detect_project_root(folder_path)
+        ).expanduser().resolve()
 
         project = {
             "root": str(root),
@@ -1560,7 +1579,10 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         for name in [".venv", "venv"]:
             candidate = root / name
 
-            if candidate.is_dir() and (candidate / "bin" / "python").is_file():
+            if (
+                candidate.is_dir()
+                and (candidate / "bin" / "python").is_file()
+            ):
                 project["local_environment"] = str(candidate)
                 project["python"] = True
                 break
@@ -1641,10 +1663,14 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             root / "src" / "main.py",
         ]
 
-        ordered_fastapi_files = [path for path in preferred_fastapi_paths if path.is_file()]
+        ordered_fastapi_files = [
+            path for path in preferred_fastapi_paths if path.is_file()
+        ]
 
         ordered_fastapi_files.extend(
-            path for path in python_files if path not in ordered_fastapi_files
+            path
+            for path in python_files
+            if path not in ordered_fastapi_files
         )
 
         for python_file in ordered_fastapi_files:
@@ -1788,14 +1814,10 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             environment_name = None
 
             try:
-                for line in (
-                    Path(environment_file)
-                    .read_text(
-                        encoding="utf-8",
-                        errors="ignore",
-                    )
-                    .splitlines()
-                ):
+                for line in Path(environment_file).read_text(
+                    encoding="utf-8",
+                    errors="ignore",
+                ).splitlines():
                     if line.strip().startswith("name:"):
                         environment_name = line.split(":", 1)[1].strip()
                         break
@@ -1816,7 +1838,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 "Choose the environment manually.",
             )
 
-            self.select_and_launch_conda_tool(folder_path=project["root"])
+            self.select_and_launch_conda_tool(
+                folder_path=project["root"]
+            )
             return
 
         self.notify(
@@ -1836,7 +1860,10 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
         if local_environment:
             activate = Path(local_environment) / "bin" / "activate"
-            command = f"source {shlex.quote(str(activate))}; {command}"
+            command = (
+                f"source {shlex.quote(str(activate))}; "
+                f"{command}"
+            )
 
         self.open_interactive_terminal_command(
             folder_path=project["root"],
@@ -1881,7 +1908,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
             return
 
-        relative_entry = str(Path(entry).relative_to(Path(project["root"])))
+        relative_entry = str(
+            Path(entry).relative_to(Path(project["root"]))
+        )
 
         self.run_project_command(
             project,
@@ -1901,7 +1930,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     ) -> str:
         """Convert a Python path into an importable module name."""
 
-        relative = Path(entry_file).relative_to(Path(project_root)).with_suffix("")
+        relative = Path(entry_file).relative_to(
+            Path(project_root)
+        ).with_suffix("")
 
         return ".".join(relative.parts)
 
@@ -2020,7 +2051,12 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         if not model_name:
             return
 
-        allowed = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-/:")
+        allowed = set(
+            "abcdefghijklmnopqrstuvwxyz"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "0123456789"
+            "._-/:"
+        )
 
         if any(character not in allowed for character in model_name):
             self.notify(
@@ -2031,7 +2067,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
         self.run_terminal_command(
             folder_path=project["root"],
-            command=(f"ollama create {shlex.quote(model_name)} -f Modelfile"),
+            command=(
+                f"ollama create {shlex.quote(model_name)} -f Modelfile"
+            ),
             title=f"Build Ollama Model: {model_name}",
         )
 
@@ -2046,7 +2084,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         path.parent.mkdir(parents=True, exist_ok=True)
 
         if path.exists():
-            raise FileExistsError(f"Refusing to overwrite existing file: {path}")
+            raise FileExistsError(
+                f"Refusing to overwrite existing file: {path}"
+            )
 
         path.write_text(content, encoding="utf-8")
 
@@ -2059,10 +2099,15 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     ) -> str:
         """Create a selected project skeleton."""
 
-        project_root = Path(parent_folder).expanduser().resolve() / project_name
+        project_root = (
+            Path(parent_folder).expanduser().resolve()
+            / project_name
+        )
 
         if project_root.exists():
-            raise FileExistsError(f"Destination already exists: {project_root}")
+            raise FileExistsError(
+                f"Destination already exists: {project_root}"
+            )
 
         project_root.mkdir(parents=True)
         package_name = project_name.replace("-", "_").replace(".", "_")
@@ -2110,9 +2155,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 project_root / "src" / package_name / "main.py",
                 (
                     "def main() -> None:\n"
-                    '    """Application entry point."""\n'
-                    '    print("Project is ready.")\n\n\n'
-                    'if __name__ == "__main__":\n'
+                    "    \"\"\"Application entry point.\"\"\"\n"
+                    "    print(\"Project is ready.\")\n\n\n"
+                    "if __name__ == \"__main__\":\n"
                     "    main()\n"
                 ),
             )
@@ -2172,11 +2217,11 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 (
                     "import streamlit as st\n\n\n"
                     "st.set_page_config(\n"
-                    '    page_title="Streamlit Application",\n'
-                    '    layout="wide",\n'
+                    "    page_title=\"Streamlit Application\",\n"
+                    "    layout=\"wide\",\n"
                     ")\n\n"
-                    'st.title("Streamlit Application")\n'
-                    'st.write("Project is ready.")\n'
+                    "st.title(\"Streamlit Application\")\n"
+                    "st.write(\"Project is ready.\")\n"
                 ),
             )
             self.write_new_file(
@@ -2201,11 +2246,11 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 project_root / "app" / "main.py",
                 (
                     "from fastapi import FastAPI\n\n\n"
-                    'app = FastAPI(title="FastAPI Application")\n\n\n'
-                    '@app.get("/health")\n'
+                    "app = FastAPI(title=\"FastAPI Application\")\n\n\n"
+                    "@app.get(\"/health\")\n"
                     "def health() -> dict[str, str]:\n"
-                    '    """Return service health."""\n'
-                    '    return {"status": "ok"}\n'
+                    "    \"\"\"Return service health.\"\"\"\n"
+                    "    return {\"status\": \"ok\"}\n"
                 ),
             )
 
@@ -2216,7 +2261,13 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
             self.write_new_file(
                 project_root / "compose.yml",
-                ('services:\n  app:\n    build: .\n    ports:\n      - "8000:8000"\n'),
+                (
+                    "services:\n"
+                    "  app:\n"
+                    "    build: .\n"
+                    "    ports:\n"
+                    "      - \"8000:8000\"\n"
+                ),
             )
             self.write_new_file(
                 project_root / "Dockerfile",
@@ -2226,7 +2277,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                     "COPY requirements.txt .\n"
                     "RUN pip install --no-cache-dir -r requirements.txt\n"
                     "COPY . .\n"
-                    'CMD ["python", "app.py"]\n'
+                    "CMD [\"python\", \"app.py\"]\n"
                 ),
             )
             self.write_new_file(
@@ -2235,7 +2286,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
             self.write_new_file(
                 project_root / "app.py",
-                'print("Docker project is ready.")\n',
+                "print(\"Docker project is ready.\")\n",
             )
 
         elif template_name == "RAG Application":
@@ -2245,7 +2296,13 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
             self.write_new_file(
                 project_root / "requirements.txt",
-                ("langchain\nlangchain-community\nchromadb\npypdf\nollama\n"),
+                (
+                    "langchain\n"
+                    "langchain-community\n"
+                    "chromadb\n"
+                    "pypdf\n"
+                    "ollama\n"
+                ),
             )
 
             for directory_name in [
@@ -2264,9 +2321,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 project_root / "src" / "main.py",
                 (
                     "def main() -> None:\n"
-                    '    """Run the RAG application."""\n'
-                    '    print("RAG project skeleton is ready.")\n\n\n'
-                    'if __name__ == "__main__":\n'
+                    "    \"\"\"Run the RAG application.\"\"\"\n"
+                    "    print(\"RAG project skeleton is ready.\")\n\n\n"
+                    "if __name__ == \"__main__\":\n"
                     "    main()\n"
                 ),
             )
@@ -2297,9 +2354,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 project_root / "src" / "main.py",
                 (
                     "def main() -> None:\n"
-                    '    """Run the agent application."""\n'
-                    '    print("Agent project skeleton is ready.")\n\n\n'
-                    'if __name__ == "__main__":\n'
+                    "    \"\"\"Run the agent application.\"\"\"\n"
+                    "    print(\"Agent project skeleton is ready.\")\n\n\n"
+                    "if __name__ == \"__main__\":\n"
                     "    main()\n"
                 ),
             )
@@ -2317,18 +2374,20 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 project_root / "server.py",
                 (
                     "from mcp.server.fastmcp import FastMCP\n\n\n"
-                    'mcp = FastMCP("Local MCP Server")\n\n\n'
+                    "mcp = FastMCP(\"Local MCP Server\")\n\n\n"
                     "@mcp.tool()\n"
                     "def hello(name: str) -> str:\n"
-                    '    """Return a greeting."""\n'
-                    '    return f"Hello, {name}!"\n\n\n'
-                    'if __name__ == "__main__":\n'
+                    "    \"\"\"Return a greeting.\"\"\"\n"
+                    "    return f\"Hello, {name}!\"\n\n\n"
+                    "if __name__ == \"__main__\":\n"
                     "    mcp.run()\n"
                 ),
             )
 
         else:
-            raise ValueError(f"Unsupported template: {template_name}")
+            raise ValueError(
+                f"Unsupported template: {template_name}"
+            )
 
         if initialize_git:
             git = self.find_command(["git"])
@@ -2348,7 +2407,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def choose_environment_setup(
         self,
         template_name: str,
-    ) -> str | None:
+    ) -> Optional[str]:
         """Ask how the new project's Python environment should be created."""
 
         python_templates = {
@@ -2411,7 +2470,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         self,
         template_name: str,
         environment_setup: str,
-    ) -> list[str] | None:
+    ) -> Optional[List[str]]:
         """Ask which optional actions should run after project creation."""
 
         zenity = self.find_command(["zenity"])
@@ -2426,7 +2485,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             ),
             (
                 "Open in VSCodium",
-                self.find_command(["codium", "codium-insiders", "vscodium"]) is not None,
+                self.find_command(
+                    ["codium", "codium-insiders", "vscodium"]
+                ) is not None,
             ),
             (
                 "Open project terminal",
@@ -2474,12 +2535,16 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         if not output:
             return []
 
-        return [item.strip() for item in output.split("|") if item.strip()]
+        return [
+            item.strip()
+            for item in output.split("|")
+            if item.strip()
+        ]
 
     @staticmethod
     def read_conda_environment_name(
         environment_file: Path,
-    ) -> str | None:
+    ) -> Optional[str]:
         """Read the environment name from environment.yml."""
 
         try:
@@ -2505,7 +2570,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         template_name: str,
         environment_setup: str,
         install_dependencies: bool,
-    ) -> str | None:
+    ) -> Optional[str]:
         """Create the selected environment and optionally install dependencies."""
 
         root = Path(project_root)
@@ -2524,7 +2589,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             ]
 
             if install_dependencies and requirements.is_file():
-                commands.append("python -m pip install -r requirements.txt")
+                commands.append(
+                    "python -m pip install -r requirements.txt"
+                )
 
             commands.extend(
                 [
@@ -2564,24 +2631,35 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 return None
 
             conda_root = Path(conda).parent.parent
-            conda_script = conda_root / "etc" / "profile.d" / "conda.sh"
+            conda_script = (
+                conda_root / "etc" / "profile.d" / "conda.sh"
+            )
             environment_file = root / "environment.yml"
 
             if environment_file.is_file():
-                environment_name = self.read_conda_environment_name(environment_file)
+                environment_name = self.read_conda_environment_name(
+                    environment_file
+                )
 
                 commands = [
                     f"source {shlex.quote(str(conda_script))}",
-                    (f"conda env create -f {shlex.quote(str(environment_file))}"),
+                    (
+                        f"conda env create -f "
+                        f"{shlex.quote(str(environment_file))}"
+                    ),
                 ]
 
                 if environment_name:
-                    commands.append(f"conda activate {shlex.quote(environment_name)}")
+                    commands.append(
+                        f"conda activate {shlex.quote(environment_name)}"
+                    )
 
                     requirements = root / "requirements.txt"
 
                     if install_dependencies and requirements.is_file():
-                        commands.append("python -m pip install -r requirements.txt")
+                        commands.append(
+                            "python -m pip install -r requirements.txt"
+                        )
 
                 commands.extend(
                     [
@@ -2609,11 +2687,16 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
                 return environment_name or "environment.yml"
 
-            environment_name = root.name.replace("-", "_").replace(".", "_")
+            environment_name = (
+                root.name.replace("-", "_").replace(".", "_")
+            )
 
             commands = [
                 f"source {shlex.quote(str(conda_script))}",
-                (f"conda create -y -n {shlex.quote(environment_name)} python=3.11 pip"),
+                (
+                    f"conda create -y -n "
+                    f"{shlex.quote(environment_name)} python=3.11 pip"
+                ),
                 f"conda activate {shlex.quote(environment_name)}",
                 "python -m pip install --upgrade pip",
             ]
@@ -2621,7 +2704,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             requirements = root / "requirements.txt"
 
             if install_dependencies and requirements.is_file():
-                commands.append("python -m pip install -r requirements.txt")
+                commands.append(
+                    "python -m pip install -r requirements.txt"
+                )
 
             commands.extend(
                 [
@@ -2677,11 +2762,11 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         requirements = root / "requirements.txt"
         commands = [
             (
-                "set -Ee; "
-                "trap 'status=$?; echo; "
+                'set -Ee; '
+                'trap \'status=$?; echo; '
                 'echo "Wizard v3.1.1 failed with exit code $status."; '
                 'echo "Press Enter to close this terminal."; '
-                "read -r; exit $status' ERR"
+                'read -r; exit $status\' ERR'
             ),
             f"cd {shlex.quote(project_root)}",
             'echo "=== New Project Wizard v3.1 ==="',
@@ -2707,7 +2792,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                     ]
                 )
             else:
-                commands.append('echo "[2/4] Dependency installation skipped."')
+                commands.append(
+                    'echo "[2/4] Dependency installation skipped."'
+                )
 
         elif environment_setup == "Conda environment":
             conda = self.find_conda_executable()
@@ -2731,10 +2818,14 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
 
             if environment_file.is_file():
-                environment_name = self.read_conda_environment_name(environment_file)
+                environment_name = self.read_conda_environment_name(
+                    environment_file
+                )
 
                 if not environment_name:
-                    environment_name = root.name.replace("-", "_").replace(".", "_")
+                    environment_name = (
+                        root.name.replace("-", "_").replace(".", "_")
+                    )
 
                 commands.extend(
                     [
@@ -2750,7 +2841,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                     ]
                 )
             else:
-                environment_name = root.name.replace("-", "_").replace(".", "_")
+                environment_name = (
+                    root.name.replace("-", "_").replace(".", "_")
+                )
 
                 commands.extend(
                     [
@@ -2775,7 +2868,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                     ]
                 )
             else:
-                commands.append('echo "[2/4] Dependency installation skipped."')
+                commands.append(
+                    'echo "[2/4] Dependency installation skipped."'
+                )
 
         else:
             commands.extend(
@@ -2788,12 +2883,17 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         if launch_application and template_name in {"Streamlit", "FastAPI"}:
             if template_name == "Streamlit":
                 app_command = (
-                    "streamlit run app.py --server.headless true --server.address 127.0.0.1"
+                    "streamlit run app.py "
+                    "--server.headless true "
+                    "--server.address 127.0.0.1"
                 )
                 port = 8501
                 url = "http://localhost:8501"
             else:
-                app_command = "uvicorn app.main:app --reload --host 127.0.0.1 --port 8000"
+                app_command = (
+                    "uvicorn app.main:app "
+                    "--reload --host 127.0.0.1 --port 8000"
+                )
                 port = 8000
                 url = "http://localhost:8000/docs"
 
@@ -2824,7 +2924,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
 
             if open_vscodium:
-                commands.append("nohup codium . >/dev/null 2>&1 </dev/null & disown")
+                commands.append(
+                    "nohup codium . >/dev/null 2>&1 </dev/null & disown"
+                )
 
             if open_project_terminal:
                 commands.append(
@@ -2850,7 +2952,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             )
 
             if open_vscodium:
-                commands.append("nohup codium . >/dev/null 2>&1 </dev/null & disown")
+                commands.append(
+                    "nohup codium . >/dev/null 2>&1 </dev/null & disown"
+                )
 
             if open_project_terminal:
                 commands.append(
@@ -2888,7 +2992,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     ) -> None:
         """Open the newly created project in VSCodium."""
 
-        command = self.find_command(["codium", "codium-insiders", "vscodium"])
+        command = self.find_command(
+            ["codium", "codium-insiders", "vscodium"]
+        )
 
         if not command:
             self.notify(
@@ -2931,15 +3037,23 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
             if conda:
                 conda_root = Path(conda).parent.parent
-                conda_script = conda_root / "etc" / "profile.d" / "conda.sh"
+                conda_script = (
+                    conda_root / "etc" / "profile.d" / "conda.sh"
+                )
                 environment_file = Path(project_root) / "environment.yml"
                 environment_name = None
 
                 if environment_file.is_file():
-                    environment_name = self.read_conda_environment_name(environment_file)
+                    environment_name = self.read_conda_environment_name(
+                        environment_file
+                    )
 
                 if not environment_name:
-                    environment_name = Path(project_root).name.replace("-", "_").replace(".", "_")
+                    environment_name = (
+                        Path(project_root).name
+                        .replace("-", "_")
+                        .replace(".", "_")
+                    )
 
                 command = (
                     f"source {shlex.quote(str(conda_script))}; "
@@ -3039,10 +3153,16 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         if not project_name:
             return
 
-        allowed = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-")
+        allowed = set(
+            "abcdefghijklmnopqrstuvwxyz"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "0123456789"
+            "._-"
+        )
 
-        if project_name in {".", ".."} or any(
-            character not in allowed for character in project_name
+        if (
+            project_name in {".", ".."}
+            or any(character not in allowed for character in project_name)
         ):
             self.notify(
                 "Invalid project name",
@@ -3065,7 +3185,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             check=False,
         )
 
-        environment_setup = self.choose_environment_setup(template_name)
+        environment_setup = self.choose_environment_setup(
+            template_name
+        )
 
         if environment_setup is None:
             return
@@ -3089,7 +3211,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             self.notify("Project creation failed", str(error))
             return
 
-        install_dependencies = "Install dependencies" in post_actions
+        install_dependencies = (
+            "Install dependencies" in post_actions
+        )
 
         subprocess.run(
             [
@@ -3097,7 +3221,8 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
                 "--info",
                 "--title=Project Created",
                 "--text=Project files were created successfully.\n"
-                "Wizard v3.1 will now complete setup sequentially:\n\n" + project_root,
+                "Wizard v3.1 will now complete setup sequentially:\n\n"
+                + project_root,
                 "--width=600",
             ],
             stdout=subprocess.DEVNULL,
@@ -3604,6 +3729,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
         return parent
 
+
     # ================================================================
     # Project submenu
     # ================================================================
@@ -3652,7 +3778,10 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
             item.connect("activate", callback, folder_path)
             submenu.append_item(item)
 
-        if project.get("local_environment") or project.get("environment_file"):
+        if (
+            project.get("local_environment")
+            or project.get("environment_file")
+        ):
             item = self.create_menu_item(
                 name="DeveloperContextMenu::OpenDetectedEnvironment",
                 label="Open Detected Environment",
@@ -3840,7 +3969,7 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def create_developer_menu(
         self,
         current_folder: Nautilus.FileInfo,
-    ) -> list[Nautilus.MenuItem]:
+    ) -> List[Nautilus.MenuItem]:
         """Build the complete structured Developer menu."""
 
         folder_path = self.get_local_path(current_folder)
@@ -3848,7 +3977,9 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
         if not folder_path:
             return []
 
-        folder_path = str(Path(folder_path).expanduser().resolve())
+        folder_path = str(
+            Path(folder_path).expanduser().resolve()
+        )
 
         developer_parent = self.create_menu_item(
             name="DeveloperContextMenu::Developer",
@@ -3859,24 +3990,40 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
 
         developer_submenu = Nautilus.Menu()
 
-        developer_submenu.append_item(self.create_editors_menu(folder_path))
+        developer_submenu.append_item(
+            self.create_editors_menu(folder_path)
+        )
 
         if self.find_conda_executable():
-            developer_submenu.append_item(self.create_python_menu(folder_path))
+            developer_submenu.append_item(
+                self.create_python_menu(folder_path)
+            )
 
         if self.find_command(["git"]):
-            developer_submenu.append_item(self.create_git_menu(folder_path))
+            developer_submenu.append_item(
+                self.create_git_menu(folder_path)
+            )
 
         if self.find_command(["docker"]):
-            developer_submenu.append_item(self.create_docker_menu(folder_path))
+            developer_submenu.append_item(
+                self.create_docker_menu(folder_path)
+            )
 
-        developer_submenu.append_item(self.create_ai_menu(folder_path))
+        developer_submenu.append_item(
+            self.create_ai_menu(folder_path)
+        )
 
-        developer_submenu.append_item(self.create_project_menu(folder_path))
+        developer_submenu.append_item(
+            self.create_project_menu(folder_path)
+        )
 
-        developer_submenu.append_item(self.create_new_project_menu(folder_path))
+        developer_submenu.append_item(
+            self.create_new_project_menu(folder_path)
+        )
 
-        developer_submenu.append_item(self.create_utilities_menu(folder_path))
+        developer_submenu.append_item(
+            self.create_utilities_menu(folder_path)
+        )
 
         developer_parent.set_submenu(developer_submenu)
 
@@ -3889,15 +4036,15 @@ class DeveloperContextMenu(GObject.GObject, Nautilus.MenuProvider):
     def get_background_items(
         self,
         current_folder: Nautilus.FileInfo,
-    ) -> list[Nautilus.MenuItem]:
+    ) -> List[Nautilus.MenuItem]:
         """Show the menu when right-clicking empty folder space."""
 
         return self.create_developer_menu(current_folder)
 
     def get_file_items(
         self,
-        files: list[Nautilus.FileInfo],
-    ) -> list[Nautilus.MenuItem]:
+        files: List[Nautilus.FileInfo],
+    ) -> List[Nautilus.MenuItem]:
         """Show the menu when right-clicking one local folder."""
 
         if len(files) != 1:
