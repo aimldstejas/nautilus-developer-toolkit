@@ -51,6 +51,9 @@ htmlcov/
 # Generated screenshots
 screenshots/generated/
 
+# Optional local Graphify output
+graphify-out/
+
 # Build artifacts
 release/
 
