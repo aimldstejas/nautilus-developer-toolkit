@@ -3,22 +3,18 @@
 ## Install
 
 ```bash
-git clone https://github.com/<username>/nautilus-developer-toolkit.git
+git clone https://github.com/aimldstejas/nautilus-developer-toolkit.git
 cd nautilus-developer-toolkit
-pip install -r requirements.txt
-```
 
-Install the Nautilus extension into:
+/usr/bin/python3 -m pip install --user --break-system-packages .
 
-```
-~/.local/share/nautilus-python/extensions/
-```
+install -Dm 0644 developer_context_menu.py \
+  "$HOME/.local/share/nautilus-python/extensions/developer_context_menu.py"
 
-Restart Nautilus:
-
-```bash
 nautilus -q
 ```
+
+Nautilus loads extensions through system Python. Use `/usr/bin/python3`, not an active Conda Python environment, so the modular `nautilus_developer_toolkit` package is available at runtime.
 
 Right-click inside any folder to access the Developer Toolkit context menu.
 
