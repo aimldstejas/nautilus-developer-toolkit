@@ -47,7 +47,7 @@ GitHub currently marks the `v1.0.0` release as a pre-release. This is an externa
 - `develop` contains integrated Version 2 development and release-readiness work.
 - Focused feature and integration branches preserve development history and should not be deleted until release and rollback needs are resolved.
 
-GitHub branch protection is not currently configured for `main`. Enabling protection before a Version 2 pull request is a pending release-readiness task. Documentation must not claim protection is already active.
+The default branch, `main`, is protected by the active repository ruleset `Protect main` (ID `19731984`). Changes require a pull request, successful `quality`, `tests (3.11)`, and `tests (3.12)` checks, resolved review conversations, and an up-to-date branch. Only normal merge commits are allowed; force-pushes and branch deletion are blocked.
 
 ## Version 1 Feature Inventory
 
@@ -139,6 +139,7 @@ Completed:
 - Version 2 modular architecture and utility extraction integrated into `develop`.
 - Frozen Version 1 snapshot restored and verified.
 - Generated Graphify output removed and ignored.
+- Active repository ruleset `Protect main` (ID `19731984`) configured for the default branch, `main`.
 - Version metadata aligned at `2.0.0.dev0`.
 - Packaging license metadata modernized.
 - Wheel, source distribution, and disposable installation validated.
@@ -147,11 +148,10 @@ Completed:
 Remaining controlled tasks:
 
 1. Correct the external GitHub `v1.0.0` pre-release flag.
-2. Configure actual branch protection for `main`.
-3. Perform a clean system-Python installation and Nautilus deployment validation.
-4. Prepare and validate a future Version 2 release candidate.
-5. Open and review a controlled `develop` to `main` pull request using normal merge history.
-6. Complete stable Version 2 tagging, release publication, and post-release verification only after all approval gates pass.
+2. Perform a clean system-Python installation and Nautilus deployment validation.
+3. Prepare and validate a future Version 2 release candidate.
+4. Open and review a controlled `develop` to `main` pull request using normal merge history.
+5. Complete stable Version 2 tagging, release publication, and post-release verification only after all approval gates pass.
 
 ## Engineering and Release Rules
 

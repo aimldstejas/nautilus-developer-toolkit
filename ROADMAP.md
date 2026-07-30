@@ -34,11 +34,11 @@ GitHub currently marks the `v1.0.0` release as a pre-release. This is an externa
 ### Current Release Readiness
 
 - [ ] Correct the external GitHub `v1.0.0` pre-release flag.
-- [ ] Configure actual GitHub branch protection for `main` before a Version 2 pull request.
+- [x] Protect `main` with the active repository ruleset `Protect main` (ID `19731984`).
 - [ ] Validate a clean system-Python package installation and Nautilus extension deployment.
 - [ ] Confirm manual Nautilus menu behavior, rollback, uninstall, and Version 1 restoration.
 
-`main` is not currently protected. Protection is a required governance task, not an existing repository state.
+The default branch, `main`, is protected by the active repository ruleset `Protect main` (ID `19731984`). Changes require a pull request, successful `quality`, `tests (3.11)`, and `tests (3.12)` checks, resolved review conversations, and an up-to-date branch. Only normal merge commits are allowed; force-pushes and branch deletion are blocked.
 
 ### Future Release Candidate
 

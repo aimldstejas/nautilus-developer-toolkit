@@ -79,14 +79,14 @@ The current work is part of the incremental Version 2 modular-refactoring effort
 - No known security vulnerabilities were introduced by the current Version 2 development work.
 - No credentials, API keys, model files, raw datasets, or private configuration files are intentionally tracked.
 - Optional AI and local-service integrations remain separated from the core toolkit.
-- `main` remains the stable Version 1 boundary; configuring GitHub branch protection before a Version 2 pull request is a pending release-readiness task.
+- The default branch, `main`, is protected by the active repository ruleset `Protect main` (ID `19731984`). Pull requests, resolved review conversations, strict required checks, and normal merge commits are enforced; force-pushes and deletion are blocked.
 
 ### Development Notes
 
 - Version 2 remains under active development and is not yet a stable release.
 - `developer_context_menu.py` remains partially responsible for application behavior through orchestration and UI-bound methods.
 - Further extraction is not automatically beneficial where it would fragment coordinated workflows.
-- Remaining release-readiness work includes external GitHub metadata and branch-governance corrections, clean system-Python and Nautilus deployment validation, and a future release-candidate phase.
+- Remaining release-readiness work includes external GitHub metadata, clean system-Python installation and Nautilus deployment validation, and a future release-candidate phase.
 
 ---
 

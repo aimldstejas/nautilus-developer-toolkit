@@ -457,7 +457,7 @@ Reusable non-UI logic now resides in focused utility modules, while `DeveloperCo
 
 The utility-extraction phase introduced no intended user-facing behavior change. The Version 2 implementation is not yet a stable release, and this milestone does not mark all Version 2 work as complete.
 
-Current release-readiness work covers documentation, external GitHub metadata and governance, clean system-Python installation and Nautilus deployment validation, and a future release-candidate phase before any stable Version 2 release.
+Current release-readiness work covers documentation, external GitHub metadata, clean system-Python installation and Nautilus deployment validation, and a future release-candidate phase before any stable Version 2 release.
 
 ## Branch Model
 
@@ -467,7 +467,7 @@ The repository uses:
 - `develop` for integration
 - Focused feature branches for Version 2 development
 
-`main` is the stable Version 1 boundary, but GitHub branch protection is not currently configured. Enabling protection before a Version 2 pull request to `main` is a pending release-readiness task.
+The default branch, `main`, is protected by the active repository ruleset `Protect main` (ID `19731984`). Changes require a pull request, successful `quality`, `tests (3.11)`, and `tests (3.12)` checks, resolved review conversations, and an up-to-date branch. Force-pushes and branch deletion are blocked.
 
 ---
 
@@ -648,7 +648,7 @@ Nautilus Developer Toolkit is released under the [MIT License](LICENSE).
 | Utility-extraction milestone documentation | Complete |
 | Version 1.0 tag | Created |
 | Stable Version 1 boundary | `main` at tag `v1.0.0` |
-| GitHub branch protection | Not configured; pending before the Version 2 pull request |
+| GitHub branch protection | Active repository ruleset `Protect main` (ID `19731984`) |
 | Version 2 modularization | Integrated into `develop` |
 | Utility-extraction phase | Complete |
 | Version 2 development version | `2.0.0.dev0` (unreleased) |
