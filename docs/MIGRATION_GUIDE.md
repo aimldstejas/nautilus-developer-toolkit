@@ -1,8 +1,8 @@
-# Migrating from Version 1 to Version 2 Development
+# Migrating from Version 1 to the Version 2 Release Candidate
 
 ## Scope and Status
 
-This guide is for users intentionally evaluating unreleased Version 2 development at `2.0.0.dev0` on `develop`. Stable Version `1.0.0` remains available at tag `v1.0.0`. Version 2 is not yet a stable release.
+This guide is for users intentionally evaluating the unreleased `2.0.0rc1` Version 2 release candidate on `develop`. It has not been tagged or published and is not the stable Version 2 release. Stable Version `1.0.0` remains available at tag `v1.0.0`.
 
 ## Deployment Models
 
@@ -10,7 +10,7 @@ This guide is for users intentionally evaluating unreleased Version 2 developmen
 
 Version 1 uses the tagged single-file `developer_context_menu.py`. It does not require the modular Python package.
 
-### Version 2 Development
+### Version 2 Release Candidate
 
 Version 2 requires both:
 
@@ -42,7 +42,7 @@ fi
 
 Record the backup filename and retain it until migration validation is complete.
 
-## Clone Version 2 Development
+## Clone the Version 2 Release Candidate
 
 ```bash
 git clone --branch develop \
@@ -98,7 +98,7 @@ Then validate the Nautilus integration manually:
 
 The Python import check validates package visibility; it does not replace the manual Nautilus menu test.
 
-## Upgrade an Existing Version 2 Development Installation
+## Upgrade an Existing Version 2 Release-Candidate Installation
 
 From a clean local `develop` checkout, fetch and review the incoming changes before updating. After updating to an approved commit, reinstall the package and redeploy the entrypoint using the same installation commands:
 
@@ -114,7 +114,7 @@ install -Dm 0644 developer_context_menu.py \
 nautilus -q
 ```
 
-Repeat import and manual menu validation after every development upgrade.
+Repeat import and manual menu validation after every release-candidate update.
 
 ## Roll Back with the Retained Backup
 
@@ -186,4 +186,4 @@ After restarting Nautilus:
 
 ## Compatibility Expectations
 
-Version 2 preserves compatibility wrappers and has no intended behavior change for the utility-extraction phase, but it remains development software. Host behavior can vary with the Linux distribution, Nautilus and GNOME versions, system Python environment, installed developer tools, and optional integrations. Keep the stable Version 1 restoration path until Version 2 validation is complete.
+Version 2 preserves compatibility wrappers and has no intended behavior change for the utility-extraction phase, but `2.0.0rc1` remains unreleased release-candidate software. Host behavior can vary with the Linux distribution, Nautilus and GNOME versions, system Python environment, installed developer tools, and optional integrations. Keep the stable Version 1 restoration path until Version 2 validation is complete.

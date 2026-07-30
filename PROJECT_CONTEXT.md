@@ -2,7 +2,7 @@
 
 This document records durable project state and release boundaries. Update it when a major repository, architecture, testing, packaging, or release milestone changes.
 
-**Last updated:** `2026-07-29`
+**Last updated:** `2026-07-30`
 
 ## Project Information
 
@@ -10,11 +10,11 @@ This document records durable project state and release boundaries. Update it wh
 - **Repository root:** `$HOME/Projects/nautilus-developer-toolkit`
 - **Current stable public version:** `1.0.0`
 - **Stable tag:** `v1.0.0`
-- **Current Version 2 development version:** `2.0.0.dev0`
+- **Current Version 2 release-candidate version:** `2.0.0rc1`
 - **License:** MIT
 - **Primary platform:** Linux, GNOME, Nautilus, and Python 3.11 or newer
 
-Version 2 is unreleased development. It must not be described as a stable release.
+The repository metadata identifies Version 2 as the unreleased `2.0.0rc1` release candidate on `develop`. It has not been tagged or published and is not the stable Version 2 release.
 
 ## Project Objective
 
@@ -39,7 +39,7 @@ Version `1.0.0` is the stable, frozen baseline. It is represented by:
 
 The frozen snapshot is immutable release evidence and must not be refactored, formatted, or adapted for Version 2.
 
-GitHub currently marks the `v1.0.0` release as a pre-release. This is an external metadata error; the `v1.0.0` tag and verified snapshot remain the stable Version 1 boundary. Correcting the flag is a separate pending task.
+The GitHub `v1.0.0` release is published, non-draft, and non-prerelease, and the tag and verified snapshot remain the stable Version 1 boundary.
 
 ## Branch Roles and Governance
 
@@ -102,8 +102,8 @@ Recent release-readiness changes have passed both local validation and the activ
 
 ## Version and Packaging State
 
-- `VERSION` is `2.0.0.dev0`.
-- `pyproject.toml` is `2.0.0.dev0`.
+- `VERSION` is `2.0.0rc1`.
+- `pyproject.toml` is `2.0.0rc1`.
 - `CHANGELOG.md` remains under `[Unreleased]`.
 - The package uses the SPDX license expression `MIT`.
 - `LICENSE` is explicitly included through package metadata.
@@ -111,7 +111,7 @@ Recent release-readiness changes have passed both local validation and the activ
 - Isolated wheel and source-distribution builds complete without the previous license deprecation warnings.
 - A disposable wheel installation and `nautilus_developer_toolkit` import have succeeded.
 
-These results establish packaging readiness but do not make Version 2 stable.
+The earlier development-metadata build results established packaging readiness. Fresh `2.0.0rc1` artifact validation remains pending, and repository metadata alone does not make Version 2 stable.
 
 ## Deployment Model
 
@@ -119,9 +119,9 @@ These results establish packaging readiness but do not make Version 2 stable.
 
 Stable Version 1 is deployed from the tagged single-file `developer_context_menu.py`. It does not require the modular Python package.
 
-### Version 2 Development
+### Version 2 Release Candidate
 
-Version 2 development requires both:
+The Version 2 release candidate requires both:
 
 1. installation of the `nautilus-developer-toolkit` package into the user site visible to `/usr/bin/python3`; and
 2. deployment of the repository-root `developer_context_menu.py` to `$HOME/.local/share/nautilus-python/extensions/`.
@@ -140,18 +140,18 @@ Completed:
 - Frozen Version 1 snapshot restored and verified.
 - Generated Graphify output removed and ignored.
 - Active repository ruleset `Protect main` (ID `19731984`) configured for the default branch, `main`.
-- Version metadata aligned at `2.0.0.dev0`.
+- Version metadata advanced to `2.0.0rc1` for release-candidate validation.
 - Packaging license metadata modernized.
 - Wheel, source distribution, and disposable installation validated.
+- Clean system-Python package installation, all installed Python files, deployed-entrypoint integrity, live Nautilus startup, and representative menu and submenu behavior validated on the supported development host; Version 1-matching rollback backups retained.
 - Release, installation, roadmap, project-context, and migration documentation aligned.
 
 Remaining controlled tasks:
 
-1. Correct the external GitHub `v1.0.0` pre-release flag.
-2. Perform a clean system-Python installation and Nautilus deployment validation.
-3. Prepare and validate a future Version 2 release candidate.
-4. Open and review a controlled `develop` to `main` pull request using normal merge history.
-5. Complete stable Version 2 tagging, release publication, and post-release verification only after all approval gates pass.
+1. Complete `2.0.0rc1` release-candidate artifact validation.
+2. Execute package uninstall, rollback or Version 1 restoration, and restarted Nautilus menu validation before stable Version 2 publication.
+3. Open and review a controlled `develop` to `main` pull request using normal merge history.
+4. Complete stable Version 2 tagging, release publication, and post-release verification only after all approval gates pass.
 
 ## Engineering and Release Rules
 

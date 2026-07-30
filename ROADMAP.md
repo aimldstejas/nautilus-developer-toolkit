@@ -1,6 +1,6 @@
 # Nautilus Developer Toolkit Roadmap
 
-This roadmap separates completed engineering from release-readiness work and future product development. Version 2 remains unreleased development at `2.0.0.dev0`.
+This roadmap separates completed engineering from release-readiness work and future product development. The repository metadata identifies Version 2 as the unreleased `2.0.0rc1` release candidate; it has not been tagged or published and is not the stable Version 2 release.
 
 ## Stable Version 1 Maintenance
 
@@ -12,7 +12,7 @@ Completed and continuing responsibilities:
 - Maintain user support, compatibility guidance, and targeted fixes for the stable baseline.
 - Keep Version 1 deployment available as the tagged single-file Nautilus extension.
 
-GitHub currently marks the `v1.0.0` release as a pre-release. This is an external metadata error; the tag and verified snapshot remain the stable Version 1 boundary. Correcting the flag is a separate pending task.
+The GitHub `v1.0.0` release is published, non-draft, and non-prerelease, and the tag and verified snapshot remain the stable Version 1 boundary.
 
 ## Version 2.0 Development
 
@@ -29,20 +29,21 @@ GitHub currently marks the `v1.0.0` release as a pre-release. This is an externa
 - [x] Modern SPDX license metadata and explicit license-file packaging.
 - [x] Warning-free isolated wheel and source-distribution validation.
 - [x] Disposable wheel installation and package-import validation.
-- [x] Release, installation, and Version 1-to-Version 2 development migration documentation.
+- [x] Release, installation, and Version 1-to-Version 2 release-candidate migration documentation.
 
 ### Current Release Readiness
 
-- [ ] Correct the external GitHub `v1.0.0` pre-release flag.
+- [x] Verify the GitHub `v1.0.0` release is published, non-draft, and non-prerelease.
 - [x] Protect `main` with the active repository ruleset `Protect main` (ID `19731984`).
-- [ ] Validate a clean system-Python package installation and Nautilus extension deployment.
-- [ ] Confirm manual Nautilus menu behavior, rollback, uninstall, and Version 1 restoration.
+- [x] Validate a clean system-Python package installation, installed-file integrity, deployed-entrypoint integrity, and live Nautilus startup.
+- [x] Validate representative Nautilus menu and submenu behavior and retain Version 1-matching rollback backups.
+- [ ] Execute package uninstall, rollback or Version 1 restoration, and restarted Nautilus menu validation before stable Version 2 publication.
 
 The default branch, `main`, is protected by the active repository ruleset `Protect main` (ID `19731984`). Changes require a pull request, successful `quality`, `tests (3.11)`, and `tests (3.12)` checks, resolved review conversations, and an up-to-date branch. Only normal merge commits are allowed; force-pushes and branch deletion are blocked.
 
-### Future Release Candidate
+### Current Release Candidate
 
-After release-readiness work is complete, prepare a Version 2 release candidate in a separate controlled task. That phase should align release-candidate metadata and release notes, rerun package and deployment validation, and exercise the controlled `develop` to `main` review path. No Version 2 release candidate currently exists.
+The repository metadata identifies Version 2 as the unreleased `2.0.0rc1` release candidate on `develop`. It has not been tagged or published and is not the stable Version 2 release. Fresh artifact validation must complete before the controlled `develop` to `main` review path.
 
 ### Future Stable Version 2
 

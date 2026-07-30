@@ -1,10 +1,10 @@
 # Quick Start
 
-The stable public release is Version `1.0.0` at tag `v1.0.0`. The modular path below installs unreleased Version 2 development at `2.0.0.dev0` from `develop`.
+The stable public release is Version `1.0.0` at tag `v1.0.0`. The modular path below installs the unreleased `2.0.0rc1` Version 2 release candidate from `develop`; it has not been tagged or published and is not the stable Version 2 release.
 
 For stable Version 1, follow the tagged single-file procedure in [Installation](INSTALLATION.md).
 
-## Version 2 Development
+## Version 2 Release Candidate
 
 ```bash
 git clone --branch develop \

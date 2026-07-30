@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nautilus-developer-toolkit"
-version = "2.0.0.dev0"
+version = "2.0.0rc1"
 description = "A modular developer productivity toolkit for GNOME Files (Nautilus)."
 readme = "README.md"
 requires-python = ">=3.11"

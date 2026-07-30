@@ -268,13 +268,13 @@ NDT does not install all of these applications automatically. Menu actions depen
 
 NDT is currently distributed from source.
 
-The current stable public release is Version `1.0.0` at tag `v1.0.0`. The `develop` branch contains unreleased Version 2 development at `2.0.0.dev0`; it uses a modular package plus the repository-root Nautilus extension entrypoint and is not yet stable.
+The current stable public release is Version `1.0.0` at tag `v1.0.0`. The `develop` branch contains repository metadata for the unreleased `2.0.0rc1` Version 2 release candidate; it uses a modular package plus the repository-root Nautilus extension entrypoint, has not been tagged or published, and is not the stable Version 2 release.
 
 See the complete installation instructions:
 
 - [Installation Guide](docs/INSTALLATION.md)
 - [Quick Start](docs/QUICK_START.md)
-- [Version 1 to Version 2 Development Migration Guide](docs/MIGRATION_GUIDE.md)
+- [Version 1 to Version 2 Release Candidate Migration Guide](docs/MIGRATION_GUIDE.md)
 - [Configuration Guide](docs/CONFIGURATION.md)
 - [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
 
@@ -435,11 +435,11 @@ Version 1.0 is:
 - Published
 - Preserved through a verified source snapshot
 
-## Version 2 Development
+## Version 2 Release Candidate
 
-**Current development version:** `2.0.0.dev0` on `develop`
+**Current release-candidate version:** `2.0.0rc1` on `develop`
 
-Version 2 is not yet a stable release.
+The repository metadata identifies this as an unreleased release candidate. It has not been tagged or published and is not the stable Version 2 release.
 
 Completed foundations include:
 
@@ -457,7 +457,7 @@ Reusable non-UI logic now resides in focused utility modules, while `DeveloperCo
 
 The utility-extraction phase introduced no intended user-facing behavior change. The Version 2 implementation is not yet a stable release, and this milestone does not mark all Version 2 work as complete.
 
-Current release-readiness work covers documentation, external GitHub metadata, clean system-Python installation and Nautilus deployment validation, and a future release-candidate phase before any stable Version 2 release.
+Current release-readiness work covers release-candidate artifact validation, controlled review into protected `main`, stable Version 2 publication, and post-release verification.
 
 ## Branch Model
 
@@ -497,7 +497,7 @@ pytest
 pre-commit
 ```
 
-Local quality checks and GitHub Actions workflows support the current Version 2 development branch. Release-readiness validation must finish before release-candidate preparation or a controlled pull request to `main`.
+Local quality checks and GitHub Actions workflows support the Version 2 release candidate on `develop`. Release-candidate validation must finish before a controlled pull request to `main`.
 
 ---
 
@@ -651,12 +651,12 @@ Nautilus Developer Toolkit is released under the [MIT License](LICENSE).
 | GitHub branch protection | Active repository ruleset `Protect main` (ID `19731984`) |
 | Version 2 modularization | Integrated into `develop` |
 | Utility-extraction phase | Complete |
-| Version 2 development version | `2.0.0.dev0` (unreleased) |
+| Version 2 release candidate | `2.0.0rc1` (unreleased, untagged, and unpublished) |
 | Unit testing | `96` unit tests passing |
 | Local quality checks and GitHub Actions | Passing |
 | Release and migration documentation | Current |
-| Clean system-Python and Nautilus deployment validation | Pending |
-| Release-candidate preparation | Future controlled phase |
+| Clean system-Python and Nautilus deployment validation | Completed on the supported development host |
+| Release-candidate artifact validation | Pending |
 | Plugin architecture | Planned |
 | Configuration system | Planned |
 | Python package build | Wheel and source distribution validated |

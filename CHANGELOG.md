@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 Development under this section represents work completed after the stable `v1.0.0` baseline.
 
-The current work is part of the incremental Version 2 modular-refactoring effort and has not yet been released as a stable Version 2 version.
+The current repository metadata identifies Version 2 as the unreleased `2.0.0rc1` release candidate. It has not been tagged or published and is not the stable Version 2 release.
 
 ### Added
 
@@ -62,10 +62,12 @@ The current work is part of the incremental Version 2 modular-refactoring effort
 #### Packaging and Deployment
 
 - Aligned `VERSION` and package metadata at the unreleased development version `2.0.0.dev0`.
+- Advanced `VERSION` and package metadata to `2.0.0rc1` for release-candidate validation; no tag or GitHub release was created.
 - Modernized package license metadata to use the SPDX `MIT` expression and explicit `LICENSE` inclusion.
 - Validated warning-free wheel and source-distribution builds and a disposable wheel installation.
 - Documented the Version 2 system-Python package installation and repository-root Nautilus extension deployment model.
 - Clarified that stable Version 1 remains a tagged single-file deployment while Version 2 development requires both the installed package and extension entrypoint.
+- Validated clean system-Python package installation, all installed Python files against the repository, deployed-entrypoint integrity, live Nautilus startup, and representative menu and submenu behavior on the supported development host; retained Version 1-matching rollback backups.
 
 ### Fixed
 
@@ -83,10 +85,10 @@ The current work is part of the incremental Version 2 modular-refactoring effort
 
 ### Development Notes
 
-- Version 2 remains under active development and is not yet a stable release.
+- Version 2 is an unreleased, untagged, and unpublished release candidate and is not yet a stable release.
 - `developer_context_menu.py` remains partially responsible for application behavior through orchestration and UI-bound methods.
 - Further extraction is not automatically beneficial where it would fragment coordinated workflows.
-- Remaining release-readiness work includes external GitHub metadata, clean system-Python installation and Nautilus deployment validation, and a future release-candidate phase.
+- Remaining release-readiness work includes release-candidate artifact validation, controlled review into protected `main`, stable Version 2 publication, and post-release verification.
 
 ---
 

@@ -1,6 +1,6 @@
 # Installation
 
-Nautilus Developer Toolkit currently has two distinct deployment paths. Stable Version 1 is a tagged single-file extension. Version 2 on `develop` is unreleased development at `2.0.0.dev0` and requires both the modular Python package and the repository-root extension entrypoint.
+Nautilus Developer Toolkit currently has two distinct deployment paths. Stable Version 1 is a tagged single-file extension. Version 2 on `develop` is the unreleased `2.0.0rc1` release candidate and requires both the modular Python package and the repository-root extension entrypoint. It has not been tagged or published and is not the stable Version 2 release.
 
 ## Requirements
 
@@ -30,9 +30,9 @@ nautilus -q
 
 Launch Nautilus again and verify that the Developer Toolkit context menu appears.
 
-## Version 2 Development Installation
+## Version 2 Release-Candidate Installation
 
-> Warning: `develop` contains unreleased Version 2 development at `2.0.0.dev0`. Use the stable `v1.0.0` installation above unless you are intentionally evaluating Version 2 development.
+> Warning: `develop` contains the unreleased `2.0.0rc1` Version 2 release candidate. No release-candidate tag or GitHub release exists; use the stable `v1.0.0` installation above unless you are intentionally evaluating the release-candidate branch state.
 
 ### Clone `develop`
 
@@ -54,7 +54,7 @@ if [ -f "$extension_path" ]; then
 fi
 ```
 
-Keep the backup until Version 2 development has been validated in Nautilus.
+Keep the backup until the Version 2 release candidate has been validated in Nautilus.
 
 ### Install the Modular Package for Nautilus
 
@@ -95,6 +95,6 @@ Launch Nautilus, right-click inside a folder, and confirm that the Developer Too
 
 ## Migration, Rollback, and Uninstall
 
-For complete backup, upgrade, rollback, package uninstall, and deterministic Version 1 restoration procedures, see the [Version 1 to Version 2 Development Migration Guide](MIGRATION_GUIDE.md).
+For complete backup, upgrade, rollback, package uninstall, and deterministic Version 1 restoration procedures, see the [Version 1 to Version 2 Release Candidate Migration Guide](MIGRATION_GUIDE.md).
 
 For failures involving imports, missing menu entries, or Nautilus logs, see [Troubleshooting](TROUBLESHOOTING.md).
